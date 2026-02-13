@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nehiyawewin - Cree Cultural Words</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            /* Soft Rainbow Gradient */
+            background: linear-gradient(
+                -45deg, 
+                #fff1f2, /* rose */
+                #fff7ed, /* orange */
+                #fefce8, /* yellow */
+                #f0fdf4, /* green */
+                #f0f9ff, /* blue */
+                #faf5ff  /* purple */
+            );
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            min-height: 100-vh;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Toast Animation */
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .toast-enter { animation: slideIn 0.3s ease-out forwards; }
+        .toast-exit { animation: fadeOut 0.3s ease-in forwards; }
+
+        /* Glassmorphism for cards to pop against rainbow */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800">
+
+    <div class="max-w-6xl mx-auto p-6">
+        
+        <!-- Header Section -->
+        <header class="text-center mb-10 pt-8">
+            <div class="flex items-center justify-center gap-3 mb-4">
+                <h1 class="text-3xl md:text-5xl font-bold text-slate-800 drop-shadow-sm">
+                    Nehiyawewin
+                </h1>
+            </div>
+            <p class="text-xl text-slate-600 italic">
+                Kindness, Respect, and Connection
+            </p>
+        </header>
+
+        <!-- Search Controls -->
+        <div class="mb-8 flex justify-center">
+            <div class="relative w-full max-w-md">
+                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">
+                    <!-- Search Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search words (e.g., 'Kindness' or 'mitiy')..."
+                    class="w-full pl-10 pr-4 py-3 rounded-full border border-white/50 shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-400 transition-all bg-white/80 backdrop-blur-sm"
+                />
+            </div>
+        </div>
+
+        <!-- Grid Container -->
+        <div id="gridContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <!-- Cards will be injected here by JavaScript -->
+        </div>
+
+        <!-- Empty State (Hidden by default) -->
+        <div id="emptyState" class="hidden text-center py-20 text-slate-400">
+            <p class="text-lg">No words found matching your search.</p>
+        </div>
+
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg text-white font-medium z-50 transform translate-y-full opacity-0 transition-all duration-300 hidden">
+        <span id="toastMessage">Notification</span>
+    </div>
+
+    <script>
+        const values = [
+            { cree: "kisewatisiwin", eng: "Kindness", audio: "https://github.com/swampy-spec/audio/blob/main/Kisewatisiwin%20(kindness).m4a?raw=true" },
+            { cree: "kihcheyihtakosiwin", eng: "Respect", audio: "https://github.com/swampy-spec/audio/blob/main/Kihcheyihtakosiwin%20(respect).m4a?raw=true" },
+            { cree: "wâpikwaniwinâkwan", eng: "Pink", audio: "https://github.com/swampy-spec/audio/blob/main/Wapikwaniwinakwan%20(pink).m4a?raw=true" },
+            { cree: "mitiy", eng: "Heart", audio: "https://github.com/swampy-spec/audio/blob/main/Mihtay%20(heart).m4a?raw=true" },
+            { cree: "wichewakan", eng: "Friend", audio: "https://github.com/swampy-spec/audio/blob/main/Wichewakan%20(friend).m4a?raw=true" },
+            { cree: "sakihitowin", eng: "Love", audio: "https://github.com/swampy-spec/audio/blob/main/Sakitowin%20Love.m4a?raw=true" },
+            { cree: "manacihitowin", eng: "Take Care of Each Other", audio: "https://github.com/swampy-spec/audio/blob/main/Manacihitowin%20(take%20care%20of%20each%20other).m4a?raw=true" }
+        ];
+
+        const gridContainer = document.getElementById('gridContainer');
+        const searchInput = document.getElementById('searchInput');
+        const emptyState = document.getElementById('emptyState');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+
+        let toastTimeout;
+
+        function showToast(message, type = 'success') {
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastMessage.textContent = message;
+            toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg text-white font-medium z-50 transform transition-all duration-300 toast-enter ${type === 'error' ? 'bg-red-500' : 'bg-rose-600'}`;
+            toast.classList.remove('hidden');
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-exit');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('toast-exit');
+                }, 300);
+            }, 3000);
+        }
+
+        function playAudio(url, label) {
+            if (!url) {
+                showToast(`Audio for "${label}" not available.`, 'error');
+                return;
+            }
+
+            try {
+                const audio = new Audio(url);
+                const playPromise = audio.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.error("Audio play error:", error);
+                        showToast(`Could not play audio for ${label}`, 'error');
+                    });
+                }
+                showToast(`Playing: ${label}`, 'success');
+            } catch (e) {
+                console.error(e);
+                showToast(`Error loading audio`, 'error');
+            }
+        }
+
+        function renderGrid(filterText = '') {
+            gridContainer.innerHTML = '';
+            const lowerFilter = filterText.toLowerCase();
+
+            const filteredValues = values.filter(val => 
+                val.cree.toLowerCase().includes(lowerFilter) || 
+                val.eng.toLowerCase().includes(lowerFilter)
+            );
+
+            if (filteredValues.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                filteredValues.forEach(val => {
+                    const btn = document.createElement('button');
+                    // Changed to glass-card and added semi-transparent background
+                    let classes = "group glass-card rounded-2xl shadow-sm border border-white/40 p-6 flex flex-col items-center justify-center text-center transition-all duration-300 cursor-pointer active:scale-95 w-full hover:bg-white/90";
+                    
+                    if (!val.audio) {
+                        classes += " opacity-70";
+                    } else {
+                        classes += " hover:shadow-xl hover:border-rose-300 hover:-translate-y-1";
+                    }
+                    
+                    btn.className = classes;
+                    btn.onclick = () => playAudio(val.audio, val.cree);
+
+                    const iconColorClass = val.audio 
+                        ? 'bg-rose-100 text-rose-600 group-hover:bg-rose-600 group-hover:text-white' 
+                        : 'bg-slate-100 text-slate-400';
+
+                    btn.innerHTML = `
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-all duration-300 ${iconColorClass} shadow-inner">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-1 group-hover:text-rose-700 transition-colors">
+                            ${val.cree}
+                        </h3>
+                        <p class="text-slate-500 text-sm font-medium">
+                            ${val.eng}
+                        </p>
+                    `;
+                    gridContainer.appendChild(btn);
+                });
+            }
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderGrid(e.target.value);
+        });
+
+        renderGrid();
+
+    </script>
+</body>
+</html>
