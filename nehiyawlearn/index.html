@@ -68,7 +68,7 @@
             </button>
             <button id="tab-online" onclick="switchMode('online')" class="px-6 py-3 border-b-2 border-transparent font-medium text-neutral-500 hover:text-neutral-700 text-sm md:text-base flex items-center gap-2 transition-all">
                 <i data-lucide="globe" size="18"></i>
-                itwêwina Live Search
+                Online Live Search
             </button>
         </div>
 
@@ -80,14 +80,24 @@
         </div>
 
         <!-- Online Query Prompt (Only visible in Online Mode) -->
-        <div id="online-prompt" class="hidden mb-6 bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-                <h3 class="font-bold text-emerald-900 text-sm uppercase tracking-wider">Live Database Querying Active</h3>
-                <p class="text-emerald-700 text-xs mt-1">This mode connects directly to the University of Alberta's itwêwina engine to search over 50,000+ words. Card translations are pronounced live by AI.</p>
+        <div id="online-prompt" class="hidden mb-6 bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex flex-col md:flex-row md:items-stretch justify-between gap-4">
+            <div class="flex-1">
+                <h3 id="online-title" class="font-bold text-emerald-900 text-sm uppercase tracking-wider">creedictionary.com Live Database Active</h3>
+                <p id="online-description" class="text-emerald-700 text-xs mt-1">This mode connects directly to the Online Cree Dictionary to search over 44,000+ words. Card translations are pronounced live by AI.</p>
             </div>
-            <button id="online-search-btn" onclick="triggerOnlineSearch()" class="px-5 py-2.5 bg-emerald-800 text-white font-bold rounded-xl text-sm hover:bg-emerald-700 shadow-md flex items-center gap-2 whitespace-nowrap transition-colors">
-                <i data-lucide="sparkles" size="16"></i> Query itwêwina
-            </button>
+            
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <label class="text-xs font-bold text-emerald-800 uppercase whitespace-nowrap">Source:</label>
+                    <select id="online-source" onchange="updateOnlinePrompt()" class="w-full sm:w-auto bg-white border border-emerald-200 rounded-xl px-3 py-2 text-sm font-semibold text-neutral-800 focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="creedictionary">Cree Dictionary</option>
+                        <option value="itwewina">itwêwina (ALTLab)</option>
+                    </select>
+                </div>
+                <button id="online-search-btn" onclick="triggerOnlineSearch()" class="px-5 py-2.5 bg-emerald-800 text-white font-bold rounded-xl text-sm hover:bg-emerald-700 shadow-md flex items-center justify-center gap-2 whitespace-nowrap transition-colors">
+                    <i data-lucide="sparkles" size="16"></i> Query Database
+                </button>
+            </div>
         </div>
 
         <!-- Word Grid -->
@@ -98,12 +108,26 @@
         <!-- Loading State -->
         <div id="loading-state" class="hidden text-center py-24">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-800 border-t-transparent mb-4"></div>
-            <p class="text-neutral-500 font-medium">Fetching records from itwêwina dictionary...</p>
+            <p id="loading-text" class="text-neutral-500 font-medium">Fetching records from Cree Dictionary...</p>
         </div>
 
         <!-- Empty State -->
-        <div id="empty-state" class="hidden text-center py-32 bg-white rounded-3xl border border-neutral-100">
-            <p class="text-neutral-400 text-lg">No results found.</p>
+        <div id="empty-state" class="hidden text-center py-20 bg-white rounded-3xl border border-neutral-100 px-6">
+            <p class="text-neutral-400 text-lg mb-4">No results found.</p>
+            
+            <!-- Direct External Struggles Help Box -->
+            <div id="struggle-container" class="hidden mt-6 max-w-md mx-auto bg-neutral-50 p-6 rounded-2xl border border-neutral-100">
+                <h4 class="font-bold text-neutral-700 text-sm mb-1">Struggling to find the word?</h4>
+                <p class="text-neutral-500 text-xs mb-4">Third-party connections can occasionally time out. Try searching directly on their native web search portals:</p>
+                <div class="flex flex-col sm:flex-row gap-2 justify-center">
+                    <a id="link-creedictionary" href="#" target="_blank" class="px-4 py-2 bg-emerald-800 text-white text-xs font-bold rounded-xl hover:bg-emerald-700 flex items-center justify-center gap-1.5 transition-colors">
+                        <i data-lucide="external-link" size="14"></i> Cree Dictionary
+                    </a>
+                    <a id="link-itwewina" href="#" target="_blank" class="px-4 py-2 bg-emerald-800 text-white text-xs font-bold rounded-xl hover:bg-emerald-700 flex items-center justify-center gap-1.5 transition-colors">
+                        <i data-lucide="external-link" size="14"></i> itwêwina portal
+                    </a>
+                </div>
+            </div>
         </div>
 
         <footer class="mt-20 py-8 border-t border-neutral-200 text-center">
@@ -114,6 +138,91 @@
         </footer>
     </div>
 
+    <!-- Pronunciation Laboratory Practice Modal -->
+    <div id="practice-modal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl border border-neutral-100 max-w-lg w-full overflow-hidden" onclick="event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="bg-emerald-800 text-white p-6 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="mic" class="animate-pulse"></i>
+                    <h3 class="font-bold text-lg">Pronunciation Lab</h3>
+                </div>
+                <button onclick="closePracticeModal()" class="p-1 rounded-lg hover:bg-white/20 transition-colors">
+                    <i data-lucide="x" size="20"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6 space-y-6">
+                <!-- Target word display -->
+                <div class="text-center space-y-1">
+                    <span id="modal-category" class="text-[10px] uppercase tracking-widest text-emerald-700 font-extrabold bg-emerald-50 px-2.5 py-1 rounded-full">...</span>
+                    <h4 id="modal-cree-word" class="text-3xl font-extrabold text-neutral-800 pt-2">...</h4>
+                    <p id="modal-english-word" class="text-sm text-neutral-500 italic">...</p>
+                </div>
+
+                <!-- Native Playback Area -->
+                <div class="bg-neutral-50 p-4 rounded-2xl flex items-center justify-between border border-neutral-100">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-emerald-100 p-2.5 rounded-full text-emerald-800">
+                            <i data-lucide="volume-2"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-neutral-700 uppercase tracking-wider">Reference Accent</p>
+                            <p class="text-xs text-neutral-500">Listen to correct pronunciation</p>
+                        </div>
+                    </div>
+                    <button onclick="playTargetWordReference()" class="px-4 py-2 bg-emerald-800 text-white text-xs font-bold rounded-xl hover:bg-emerald-700 transition-colors flex items-center gap-1">
+                        <i data-lucide="play" size="14"></i> Play
+                    </button>
+                </div>
+
+                <!-- User voice recording station -->
+                <div class="flex flex-col items-center justify-center space-y-3">
+                    <div id="record-timer" class="text-2xl font-mono text-neutral-700 font-bold">00:00</div>
+                    
+                    <button id="mic-practice-btn" onclick="togglePracticeRecording()" class="w-20 h-20 bg-emerald-100 hover:bg-emerald-200 border-4 border-emerald-500 rounded-full flex items-center justify-center text-emerald-700 transition-all cursor-pointer relative">
+                        <i data-lucide="mic" size="32"></i>
+                    </button>
+                    
+                    <p id="record-instructions" class="text-xs font-semibold text-neutral-400">Tap to start recording</p>
+                </div>
+
+                <!-- AI Speech Analysis Output Panel -->
+                <div id="analysis-section" class="hidden mt-6 pt-6 border-t border-neutral-100">
+                    <!-- Loading Status -->
+                    <div id="analysis-loading" class="hidden text-center py-4 space-y-2">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-3 border-emerald-800 border-t-transparent"></div>
+                        <p class="text-xs text-neutral-500 font-medium animate-pulse">Gemini AI comparing phonetics...</p>
+                    </div>
+
+                    <!-- Error Status -->
+                    <div id="analysis-error" class="hidden text-center py-4 bg-red-50 border border-red-100 rounded-2xl p-4">
+                        <p class="text-red-700 text-sm font-semibold">Comparison Failed</p>
+                        <p id="analysis-error-desc" class="text-xs text-red-500 mt-1">Audio was too quiet or connection broken.</p>
+                    </div>
+
+                    <!-- Success Status -->
+                    <div id="analysis-success" class="hidden space-y-4">
+                        <div class="flex flex-col sm:flex-row items-center gap-4 bg-neutral-50 p-4 rounded-2xl border border-neutral-100">
+                            <!-- Circular Score Badge -->
+                            <div id="score-gauge-container" class="relative flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 border-4 border-emerald-500 text-emerald-800 font-bold text-2xl">
+                                <span id="analysis-score">0%</span>
+                            </div>
+                            <!-- Feedback Details -->
+                            <div class="flex-1 text-center sm:text-left">
+                                <h5 class="font-bold text-neutral-700 text-xs uppercase tracking-wider flex items-center justify-center sm:justify-start gap-1.5">
+                                    <i data-lucide="sparkles" size="14" class="text-emerald-700"></i> Speech Lab Feedback
+                                </h5>
+                                <p id="analysis-feedback" class="text-xs text-neutral-600 mt-1.5 leading-relaxed font-medium">...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const apiKey = "";
         
@@ -122,6 +231,14 @@
         let searchTerm = "";
         let activeCategory = "All";
         let onlineResults = [];
+
+        // Recording System References
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordTimerInterval = null;
+        let recordSeconds = 0;
+        let localStream = null;
+        let currentPracticeWord = null;
 
         // Curated Local Database
         const CREE_DATA = [
@@ -274,10 +391,12 @@
             const localFilters = document.getElementById('local-filters');
             const onlinePrompt = document.getElementById('online-prompt');
             const searchInput = document.getElementById('search-input');
+            const emptyState = document.getElementById('empty-state');
 
             // Reset Search Text on Tab Switch
             searchTerm = "";
             searchInput.value = "";
+            emptyState.classList.add('hidden');
 
             if (mode === 'local') {
                 localTab.className = "px-6 py-3 border-b-2 border-emerald-700 font-bold text-emerald-700 text-sm md:text-base flex items-center gap-2 transition-all";
@@ -291,71 +410,258 @@
                 localFilters.classList.add('hidden');
                 onlinePrompt.classList.remove('hidden');
                 onlineResults = [];
+                updateOnlinePrompt();
                 renderGrid();
             }
         }
 
-        // Query University of Alberta's itwêwina REST API
+        // Update titles and labels based on online source
+        function updateOnlinePrompt() {
+            const source = document.getElementById('online-source').value;
+            const title = document.getElementById('online-title');
+            const desc = document.getElementById('online-description');
+            const loadingText = document.getElementById('loading-text');
+
+            if (source === 'creedictionary') {
+                title.textContent = "creedictionary.com Live Database Active";
+                desc.textContent = "This mode connects directly to the Online Cree Dictionary to search over 44,000+ words. Card translations are pronounced live by AI.";
+                loadingText.textContent = "Fetching records from Cree Dictionary...";
+            } else {
+                title.textContent = "itwêwina Live Database Active";
+                desc.textContent = "This mode connects directly to the University of Alberta's itwêwina engine to search over 50,000+ words. Card translations are pronounced live by AI.";
+                loadingText.textContent = "Fetching records from itwêwina database...";
+            }
+            updateIcons();
+        }
+
+        // Unified multi-proxy resilient fetch helper
+        async function fetchWithProxy(directUrl, isJson = true) {
+            const urlsToTry = [
+                directUrl,
+                `https://corsproxy.io/?${encodeURIComponent(directUrl)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(directUrl)}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(directUrl)}`
+            ];
+
+            let lastError = null;
+
+            for (const url of urlsToTry) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        if (url.includes("allorigins")) {
+                            const json = await response.json();
+                            const rawContent = json.contents;
+                            if (isJson) {
+                                return typeof rawContent === "string" ? JSON.parse(rawContent) : rawContent;
+                            }
+                            return rawContent;
+                        } else {
+                            return isJson ? await response.json() : await response.text();
+                        }
+                    }
+                } catch (e) {
+                    lastError = e;
+                    console.warn(`Fetch failure on endpoint: ${url}`, e);
+                }
+            }
+
+            throw new Error(lastError ? lastError.message : "All connection endpoints and proxies failed.");
+        }
+
+        // Semantic parser to read creedictionary.com HTML search outputs
+        function parseCreeDictionaryHTML(htmlString, query) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlString, 'text/html');
+            const pageText = doc.body ? doc.body.textContent : doc.documentElement.textContent;
+            
+            const searchHeaderIndex = pageText.indexOf("Search Results for:");
+            if (searchHeaderIndex === -1) {
+                return [];
+            }
+
+            let relevantText = pageText.substring(searchHeaderIndex);
+            
+            const footerIndex = relevantText.indexOf("Pages (");
+            if (footerIndex !== -1) {
+                relevantText = relevantText.substring(0, footerIndex);
+            }
+            const softwareIndex = relevantText.indexOf("CREE SOFTWARE");
+            if (softwareIndex !== -1) {
+                relevantText = relevantText.substring(0, softwareIndex);
+            }
+
+            const rawEntries = relevantText.split(/;\s+/);
+            const parsedWords = [];
+            let idx = 0;
+
+            for (const rawEntry of rawEntries) {
+                let cleanEntry = rawEntry.trim();
+                if (cleanEntry.startsWith("Search Results for:") || cleanEntry.startsWith("Displayed ")) {
+                    continue;
+                }
+                if (!cleanEntry) continue;
+
+                if (cleanEntry.startsWith("- ")) {
+                    cleanEntry = cleanEntry.substring(2).trim();
+                }
+
+                const tokens = cleanEntry.split(/\s+/);
+                let syllabicStartIndex = -1;
+                let syllabicEndIndex = -1;
+                
+                for (let i = 0; i < tokens.length; i++) {
+                    const token = tokens[i];
+                    if (/[\u1400-\u167F]/.test(token)) {
+                        if (syllabicStartIndex === -1) {
+                            syllabicStartIndex = i;
+                        }
+                        syllabicEndIndex = i;
+                    }
+                }
+
+                if (syllabicStartIndex === -1) {
+                    if (tokens.length >= 2) {
+                        parsedWords.push({
+                            id: 4000 + idx++,
+                            cree: tokens[0],
+                            english: tokens.slice(1).join(' ').replace(/\s*\([^)]+\)$/, ''),
+                            category: "Cree Dictionary"
+                        });
+                    }
+                    continue;
+                }
+
+                const creeSRO = tokens.slice(0, syllabicStartIndex).join(' ').trim();
+                const syllabics = tokens.slice(syllabicStartIndex, syllabicEndIndex + 1).join(' ').trim();
+                
+                let pos = "";
+                let englishStartIdx = syllabicEndIndex + 1;
+                if (englishStartIdx < tokens.length) {
+                    const potentialPOS = tokens[englishStartIdx];
+                    if (/^[A-Z]{2,4}$/.test(potentialPOS)) {
+                        pos = potentialPOS;
+                        englishStartIdx++;
+                    }
+                }
+
+                let englishPart = tokens.slice(englishStartIdx).join(' ').trim();
+                englishPart = englishPart.replace(/\s*\([A-Z]{2,3}\)$/, '').trim();
+
+                if (creeSRO && englishPart) {
+                    parsedWords.push({
+                        id: 4000 + idx++,
+                        cree: `${creeSRO} (${syllabics})`,
+                        english: englishPart,
+                        category: pos ? `Cree Dictionary: ${pos}` : "Cree Dictionary"
+                    });
+                }
+            }
+
+            return parsedWords;
+        }
+
+        // Query creedictionary.com
+        async function searchCreeDictionary(query, scope = 1) {
+            const cleanQuery = query.trim();
+            if (!cleanQuery) return [];
+            const directUrl = `https://www.creedictionary.com/search/index.php?q=${encodeURIComponent(cleanQuery)}&scope=${scope}`;
+            const htmlText = await fetchWithProxy(directUrl, false);
+            return parseCreeDictionaryHTML(htmlText, cleanQuery);
+        }
+
+        // Query itwêwina REST API
         async function searchItwewina(query) {
             const cleanQuery = query.trim();
             if (!cleanQuery) return [];
-
             const directUrl = `https://itwewina.altlab.app/api/v1/search/?q=${encodeURIComponent(cleanQuery)}`;
-            // Automatic CORS Proxy wrapper to prevent browsers blocking dynamic requests
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(directUrl)}`;
+            const data = await fetchWithProxy(directUrl, true);
+            
+            if (!data.results || data.results.length === 0) return [];
 
-            try {
-                let response = await fetch(directUrl).catch(() => null);
-                
-                // Fallback to CORS Proxy if direct connection fails
-                if (!response || !response.ok) {
-                    response = await fetch(proxyUrl);
-                }
+            return data.results.map((result, idx) => {
+                const matchedCree = result.wordform ? result.wordform.text : cleanQuery;
+                const cleanDef = result.definitions && result.definitions[0] 
+                    ? result.definitions[0].text.replace(/<\/?[^>]+(>|$)/g, "")
+                    : "Translation unavailable";
 
-                if (!response.ok) throw new Error("Connection failed");
-                const data = await response.json();
-                
-                if (!data.results || data.results.length === 0) return [];
-
-                return data.results.map((result, idx) => {
-                    const matchedCree = result.wordform ? result.wordform.text : cleanQuery;
-                    const cleanDef = result.definitions && result.definitions[0] 
-                        ? result.definitions[0].text.replace(/<\/?[^>]+(>|$)/g, "") // Strip HTML tags
-                        : "Translation unavailable";
-
-                    return {
-                        id: 3000 + idx, // Ensure unique namespace IDs
-                        english: cleanDef,
-                        cree: matchedCree,
-                        category: result.wordform && result.wordform.pos ? `itwêwina: ${result.wordform.pos}` : "itwêwina Word"
-                    };
-                });
-            } catch (error) {
-                console.error("CORS proxy or lookup breakdown:", error);
-                return [];
-            }
+                return {
+                    id: 3000 + idx,
+                    english: cleanDef,
+                    cree: matchedCree,
+                    category: result.wordform && result.wordform.pos ? `itwêwina: ${result.wordform.pos}` : "itwêwina Word"
+                };
+            });
         }
 
-        // Trigger dynamic online API querying
-        async function triggerOnlineSearch() {
-            if (!searchTerm.trim()) {
-                alert("Please input a search query first.");
-                return;
-            }
+        // Struggle link helper
+        function showStruggleLinks(query) {
+            const container = document.getElementById('struggle-container');
+            const linkCree = document.getElementById('link-creedictionary');
+            const linkItwewina = document.getElementById('link-itwewina');
 
+            linkCree.href = `https://www.creedictionary.com/search/index.php?q=${encodeURIComponent(query)}&scope=1`;
+            linkItwewina.href = `https://itwewina.altlab.app/search/?q=${encodeURIComponent(query)}`;
+
+            container.classList.remove('hidden');
+            updateIcons();
+        }
+
+        // Trigger search querying
+        async function triggerOnlineSearch() {
+            const cleanTerm = searchTerm.trim();
             const grid = document.getElementById('word-grid');
             const loading = document.getElementById('loading-state');
             const empty = document.getElementById('empty-state');
+            const emptyText = empty.querySelector('p');
+            const struggleContainer = document.getElementById('struggle-container');
+
+            if (!cleanTerm) {
+                grid.innerHTML = "";
+                emptyText.textContent = "Please input a search query first.";
+                struggleContainer.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
 
             grid.innerHTML = "";
             empty.classList.add('hidden');
+            struggleContainer.classList.add('hidden');
             loading.classList.remove('hidden');
 
-            const results = await searchItwewina(searchTerm);
-            onlineResults = results;
-            loading.classList.add('hidden');
+            const source = document.getElementById('online-source').value;
 
-            renderGrid();
+            try {
+                let results = [];
+                if (source === 'creedictionary') {
+                    results = await searchCreeDictionary(cleanTerm, 1);
+                    if (results.length === 0) {
+                        results = await searchCreeDictionary(cleanTerm, 0);
+                    }
+                } else {
+                    results = await searchItwewina(cleanTerm);
+                }
+
+                onlineResults = results;
+                loading.classList.add('hidden');
+                
+                if (results.length === 0) {
+                    emptyText.textContent = `No results found for "${cleanTerm}".`;
+                    showStruggleLinks(cleanTerm);
+                    empty.classList.remove('hidden');
+                } else {
+                    renderGrid();
+                }
+            } catch (err) {
+                console.error("CORS proxy lookup breakdown:", err);
+                loading.classList.add('hidden');
+                emptyText.innerHTML = `
+                    <span class="text-red-600 font-medium">Connection failed.</span><br>
+                    <span class="text-xs text-neutral-500 mt-1 block">Third-party servers are blocked or offline.</span>
+                `;
+                showStruggleLinks(cleanTerm);
+                empty.classList.remove('hidden');
+            }
         }
 
         function pcmToWav(pcmData, sampleRate = 24000) {
@@ -392,11 +698,20 @@
             };
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                let response;
+                let retries = 0;
+                while (retries < 5) {
+                    try {
+                        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) break;
+                    } catch (e) {}
+                    retries++;
+                    await new Promise(r => setTimeout(r, Math.pow(2, retries) * 1000));
+                }
                 const result = await response.json();
                 const base64Audio = result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
                 if (base64Audio) {
@@ -417,8 +732,10 @@
             spinner.classList.remove('hidden');
             icon.classList.add('hidden');
 
+            let ttsCleanText = word.cree.replace(/\s*\([^)]+\)/g, '').trim();
+
             if (!word.hash || !word.file) {
-                await playTTS(word.cree);
+                await playTTS(ttsCleanText);
                 spinner.classList.add('hidden');
                 icon.classList.remove('hidden');
                 return;
@@ -438,12 +755,274 @@
                 await audio.play();
             } catch (err) {
                 console.warn(`Original clip not reachable. Using AI fallback.`);
-                await playTTS(word.cree);
+                await playTTS(ttsCleanText);
             } finally {
                 spinner.classList.add('hidden');
                 icon.classList.remove('hidden');
             }
         }
+
+        // --- PRONUNCIATION LAB RECORDING CORE ---
+        
+        function openPracticeModal(event, id) {
+            event.stopPropagation(); // Stop card from flipping
+            
+            currentPracticeWord = (appMode === 'local') 
+                ? CREE_DATA.find(w => w.id === id) 
+                : onlineResults.find(w => w.id === id);
+
+            if (!currentPracticeWord) return;
+
+            resetPracticeState();
+
+            // SRO Clean vs bracket representation update
+            document.getElementById('modal-cree-word').textContent = currentPracticeWord.cree;
+            document.getElementById('modal-english-word').textContent = currentPracticeWord.english;
+            document.getElementById('modal-category').textContent = currentPracticeWord.category;
+
+            document.getElementById('practice-modal').classList.remove('hidden');
+            updateIcons();
+        }
+
+        function closePracticeModal() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                stopRecording();
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            document.getElementById('practice-modal').classList.add('hidden');
+        }
+
+        function resetPracticeState() {
+            audioChunks = [];
+            recordSeconds = 0;
+            clearInterval(recordTimerInterval);
+            document.getElementById('record-timer').textContent = "00:00";
+            
+            const micBtn = document.getElementById('mic-practice-btn');
+            micBtn.className = "w-20 h-20 bg-emerald-100 hover:bg-emerald-200 border-4 border-emerald-500 rounded-full flex items-center justify-center text-emerald-700 transition-all cursor-pointer relative";
+            micBtn.innerHTML = `<i data-lucide="mic" size="32"></i>`;
+            
+            document.getElementById('record-instructions').textContent = "Tap to start recording";
+            
+            document.getElementById('analysis-section').classList.add('hidden');
+            document.getElementById('analysis-loading').classList.add('hidden');
+            document.getElementById('analysis-error').classList.add('hidden');
+            document.getElementById('analysis-success').classList.add('hidden');
+            updateIcons();
+        }
+
+        async function playTargetWordReference() {
+            if (!currentPracticeWord) return;
+            let cleanRefText = currentPracticeWord.cree.replace(/\s*\([^)]+\)/g, '').trim();
+            
+            if (currentPracticeWord.hash && currentPracticeWord.file) {
+                const rawUrl = `https://raw.githubusercontent.com/swampy-spec/audio/${currentPracticeWord.hash}/${encodeURIComponent(currentPracticeWord.file)}`;
+                try {
+                    const audio = new Audio(rawUrl);
+                    await audio.play();
+                } catch (e) {
+                    await playTTS(cleanRefText);
+                }
+            } else {
+                await playTTS(cleanRefText);
+            }
+        }
+
+        async function togglePracticeRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                stopRecording();
+            } else {
+                await startRecording();
+            }
+        }
+
+        async function startRecording() {
+            audioChunks = [];
+            recordSeconds = 0;
+            
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(localStream);
+                
+                mediaRecorder.ondataavailable = e => {
+                    if (e.data.size > 0) {
+                        audioChunks.push(e.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    if (localStream) {
+                        localStream.getTracks().forEach(track => track.stop());
+                        localStream = null;
+                    }
+                    
+                    const mimeType = mediaRecorder.mimeType || 'audio/webm';
+                    const audioBlob = new Blob(audioChunks, { type: mimeType });
+                    
+                    // Instant playback repeat block
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const playbackAudio = new Audio(audioUrl);
+                    playbackAudio.play();
+                    
+                    document.getElementById('record-instructions').textContent = "Repeating your voice...";
+                    
+                    // Trigger Gemini Speech Analysis
+                    await analyzeSpeechPronunciation(audioBlob);
+                };
+                
+                mediaRecorder.start();
+                
+                document.getElementById('record-instructions').textContent = "Recording... Tap to stop";
+                const micBtn = document.getElementById('mic-practice-btn');
+                micBtn.className = "w-20 h-20 bg-red-100 hover:bg-red-200 border-4 border-red-500 rounded-full flex items-center justify-center text-red-600 transition-all cursor-pointer animate-pulse relative";
+                micBtn.innerHTML = `<i data-lucide="square" size="28"></i>`;
+                updateIcons();
+                
+                recordTimerInterval = setInterval(() => {
+                    recordSeconds++;
+                    const mins = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+                    const secs = String(recordSeconds % 60).padStart(2, '0');
+                    document.getElementById('record-timer').textContent = `${mins}:${secs}`;
+                    
+                    if (recordSeconds >= 12) { // Cap recording at 12 seconds to prevent token overflows
+                        stopRecording();
+                    }
+                }, 1000);
+                
+            } catch (err) {
+                console.error(err);
+                document.getElementById('record-instructions').innerHTML = `<span class="text-red-600 font-medium">Microphone access was denied or unsupported.</span>`;
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                clearInterval(recordTimerInterval);
+                
+                const micBtn = document.getElementById('mic-practice-btn');
+                micBtn.className = "w-20 h-20 bg-emerald-100 hover:bg-emerald-200 border-4 border-emerald-500 rounded-full flex items-center justify-center text-emerald-700 transition-all cursor-pointer relative";
+                micBtn.innerHTML = `<i data-lucide="mic" size="32"></i>`;
+                updateIcons();
+            }
+        }
+
+        // Helper to convert blob back into standard base64 for API transport
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        // Fetch loop utilizing exponential backoff rule
+        async function fetchGeminiAnalysisWithBackoff(payload) {
+            let retries = 0;
+            const maxRetries = 5;
+            while (retries < maxRetries) {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) {
+                        const result = await response.json();
+                        const textResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (textResponse) {
+                            return JSON.parse(textResponse);
+                        }
+                    }
+                } catch (e) {
+                    // Fail silently inside console as per rules
+                }
+                retries++;
+                await new Promise(r => setTimeout(r, Math.pow(2, retries) * 1000));
+            }
+            throw new Error("Timeout/retries failed.");
+        }
+
+        async function analyzeSpeechPronunciation(audioBlob) {
+            const analysisSection = document.getElementById('analysis-section');
+            const loading = document.getElementById('analysis-loading');
+            const success = document.getElementById('analysis-success');
+            const error = document.getElementById('analysis-error');
+            const errorDesc = document.getElementById('analysis-error-desc');
+
+            analysisSection.classList.remove('hidden');
+            loading.classList.remove('hidden');
+            success.classList.add('hidden');
+            error.classList.add('hidden');
+
+            try {
+                const base64Audio = await blobToBase64(audioBlob);
+                const mimeType = audioBlob.type || 'audio/webm';
+                let cleanTarget = currentPracticeWord.cree.replace(/\s*\([^)]+\)/g, '').trim();
+
+                const prompt = `The student is practicing their indigenous Plains Cree pronunciation. They are attempting to say the Cree word "${cleanTarget}". Listen to the recorded student pronunciation and grade their pronunciation accuracy on a scale of 0 to 100. Provide encouraging, short, constructive feedback in English (max 2 sentences) telling them what sounded good and providing one specific phonetic tip (e.g. vowel lengthening or consonant soft pronunciation) if they scored under 90. Output structured JSON.`;
+
+                const payload = {
+                    contents: [{
+                        parts: [
+                            { text: prompt },
+                            { inlineData: { mimeType: mimeType, data: base64Audio } }
+                        ]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                score: { type: "INTEGER" },
+                                feedback: { type: "STRING" }
+                            },
+                            required: ["score", "feedback"]
+                        }
+                    }
+                };
+
+                const data = await fetchGeminiAnalysisWithBackoff(payload);
+                
+                loading.classList.add('hidden');
+                
+                // Render grade accuracy badge beautifully
+                const score = data.score || 0;
+                const feedbackText = data.feedback || "Great attempt! Keep practicing.";
+                
+                const scoreBadge = document.getElementById('score-gauge-container');
+                const scoreLabel = document.getElementById('analysis-score');
+                const feedbackLabel = document.getElementById('analysis-feedback');
+
+                scoreLabel.textContent = `${score}%`;
+                feedbackLabel.textContent = feedbackText;
+
+                // Color coordinate badge based on standard linguistic score brackets
+                if (score >= 85) {
+                    scoreBadge.className = "relative flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 border-4 border-emerald-500 text-emerald-800 font-bold text-2xl shrink-0";
+                } else if (score >= 60) {
+                    scoreBadge.className = "relative flex items-center justify-center w-20 h-20 rounded-full bg-amber-100 border-4 border-amber-500 text-amber-800 font-bold text-2xl shrink-0";
+                } else {
+                    scoreBadge.className = "relative flex items-center justify-center w-20 h-20 rounded-full bg-red-100 border-4 border-red-500 text-red-800 font-bold text-2xl shrink-0";
+                }
+
+                success.classList.remove('hidden');
+                document.getElementById('record-instructions').textContent = "Tap mic to try again!";
+                updateIcons();
+
+            } catch (err) {
+                console.error("Speech analysis failed:", err);
+                loading.classList.add('hidden');
+                errorDesc.textContent = "AI Speech processing is currently busy. Try recording again.";
+                error.classList.remove('hidden');
+            }
+        }
+
+        // --- RENDER GRID ENGINE ---
 
         function renderCategories() {
             const container = document.getElementById('categories-bar');
@@ -464,6 +1043,8 @@
         function renderGrid() {
             const container = document.getElementById('word-grid');
             const emptyState = document.getElementById('empty-state');
+            const emptyText = emptyState.querySelector('p');
+            const struggleContainer = document.getElementById('struggle-container');
             
             let dataset = [];
 
@@ -480,14 +1061,21 @@
 
             if (dataset.length === 0) {
                 container.innerHTML = "";
-                // Only show empty state if we completed a search
-                if (appMode === 'local' || (appMode === 'online' && searchTerm.trim() !== "")) {
+                if (appMode === 'local') {
+                    emptyText.textContent = "No results found.";
+                    struggleContainer.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                } else if (appMode === 'online' && searchTerm.trim() !== "") {
+                    emptyText.textContent = `No results found for "${searchTerm}".`;
+                    showStruggleLinks(searchTerm);
                     emptyState.classList.remove('hidden');
                 } else {
                     emptyState.classList.add('hidden');
+                    struggleContainer.classList.add('hidden');
                 }
             } else {
                 emptyState.classList.add('hidden');
+                struggleContainer.classList.add('hidden');
                 container.innerHTML = dataset.map(word => `
                     <div 
                         id="card-${word.id}"
@@ -516,6 +1104,11 @@
                                             <i data-lucide="volume-2" size="20"></i>
                                         </div>
                                     </div>
+                                    
+                                    <button onclick="openPracticeModal(event, ${word.id})" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors" title="Speech Analysis Lab">
+                                        <i data-lucide="mic" size="14"></i> Speak
+                                    </button>
+
                                     ${word.hash ? `
                                         <a 
                                             href="https://github.com/swampy-spec/audio/commit/${word.hash}" 
@@ -527,11 +1120,7 @@
                                         >
                                             <i data-lucide="external-link" size="14"></i>
                                         </a>
-                                    ` : `
-                                        <div class="p-2 bg-white/10 rounded-full" title="AI Audio Generated">
-                                            <i data-lucide="sparkles" size="14"></i>
-                                        </div>
-                                    `}
+                                    ` : ''}
                                 </div>
                             </div>
                         </div>
@@ -558,7 +1147,6 @@
         window.handleCardClick = (element, id) => {
             const isFlipped = element.classList.contains('flipped');
             if (!isFlipped) {
-                // Check both datasets to locate the clicked word object
                 const word = (appMode === 'local') 
                     ? CREE_DATA.find(w => w.id === id) 
                     : onlineResults.find(w => w.id === id);
