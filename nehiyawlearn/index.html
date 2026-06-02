@@ -81,7 +81,10 @@
 
     <script>
         const apiKey = "";
+        
+        // Merged Database: Original Swampy/Plains files + Simulated Offline Compilation
         const CREE_DATA = [
+            // --- ORIGINAL DATABASE (With Repo Audio) ---
             // Numbers
             { id: 1, english: "One", cree: "pēyak", category: "Numbers", hash: "9f8e53c578f542a1b844ee4ca24ae4a2511e84d8", file: "1 Peyak.m4a" },
             { id: 2, english: "Two", cree: "nīso", category: "Numbers", hash: "fe9615d1f325f02ca06aff6496d830910a8d161a", file: "2 Niso.m4a" },
@@ -93,20 +96,21 @@
             { id: 8, english: "Eight", cree: "ayinānēw", category: "Numbers", hash: "e4478531849680f61d4cc1e8d9d5996603dce2b5", file: "8-ayinānēw.m4a" },
             { id: 9, english: "Nine", cree: "kēkā-mitātaht", category: "Numbers", hash: "85c89f0e01490aa2f3eb910f13230e2f178e42f9", file: "9-kēkā-mitātaht.m4a" },
             { id: 10, english: "Ten", cree: "mitātaht", category: "Numbers", hash: "3110b959ef49aaf0d52bd1601fe972081541939b", file: "10-mitātaht..m4a" },
-            // Greetings
-            { id: 11, english: "Hello", cree: "Tansi", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "Tansi (Hello).m4a" },
-            { id: 12, english: "How are you?", cree: "Tansi Kiya", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "Tansi Kiya (how are you).m4a" },
-            { id: 13, english: "Welcome", cree: "tatawaw", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "Welcome tatawaw.m4a" },
-            { id: 14, english: "Come on in", cree: "pihtikwê", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "Come on in. pihtikwe..m4a" },
-            { id: 15, english: "I am fine", cree: "namôya nânitaw", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "I am fine. namoya nânitaw.m4a" },
-            { id: 16, english: "Sit down", cree: "Api", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "Api (Sit down).m4a" },
             
-            // Birds & Animals (Updated with assets and orthography)
+            // Greetings
+            { id: 11, english: "Hello", cree: "tânisi", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "Tansi (Hello).m4a" },
+            { id: 12, english: "How are you?", cree: "tânisi kîya", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "Tansi Kiya (how are you).m4a" },
+            { id: 13, english: "Welcome", cree: "tawâw", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "Welcome tatawaw.m4a" },
+            { id: 14, english: "Come on in", cree: "pîhtikwê", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "Come on in. pihtikwe..m4a" },
+            { id: 15, english: "I am fine", "cree": "namôya nânitaw", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "I am fine. namoya nânitaw.m4a" },
+            { id: 16, english: "Sit down", cree: "api", category: "Greetings", hash: "f8737f0127dc5f21dd0f8851e7800d2525a4d6d4", file: "Api (Sit down).m4a" },
+            
+            // Birds & Animals (With Assets & Audio where applicable)
             { id: 17, english: "Crow", cree: "âhâsiw", category: "Birds & Animals", hash: "71a66547212d392f03d9d01e018e870dbcf88f71", file: "Ahasiw (Crow).m4a", asset: "https://raw.githubusercontent.com/swampy-spec/gif/main/Crow.svg" },
             { id: 18, english: "Blackbird", cree: "cahcahkâyow", category: "Birds & Animals", hash: "a05087e715daa28e8654ab47dffc9b68164c46af", file: "Cahcahkayow (Black Bird).m4a", asset: "https://raw.githubusercontent.com/swampy-spec/gif/main/Blackbird.svg" },
             { id: 19, english: "Eagle", cree: "kihew", category: "Birds & Animals", hash: "1f810d9c321cec9debab685bf5a47a774bb4e6a8", file: "Kihew (Eagle).m4a", asset: "https://raw.githubusercontent.com/swampy-spec/gif/main/eagle.svg" },
             { id: 20, english: "Blue jay", cree: "kwîhkwîsiw", category: "Birds & Animals", hash: "3a81193e8ca7499482bca9487046c3fbbbe19feb", file: "Kwihkwisiw (Blue Jay).m4a", asset: "https://raw.githubusercontent.com/swampy-spec/gif/main/blue%20jay.svg" },
-            { id: 21, english: "Loon", cree: "makwa", category: "Birds & Animals", hash: "81a3bc1eaf69e64c1c3eaf3ed9a1ade89ad7dee4", file: "Makwa (Loon).m4a" }, // No asset in snippet
+            { id: 21, english: "Loon", cree: "makwa", category: "Birds & Animals", hash: "81a3bc1eaf69e64c1c3eaf3ed9a1ade89ad7dee4", file: "Makwa (Loon).m4a" },
             { id: 22, english: "Goose", cree: "niska", category: "Birds & Animals", hash: "53e6c8561e563d67fcbcb7a946aa8d9cef1ee980", file: "Niska. (Goose)m4a", asset: "https://raw.githubusercontent.com/swampy-spec/gif/main/goose.svg" },
             { id: 23, english: "Thunderbird", cree: "pihêsiw", category: "Birds & Animals", hash: "65c15e5851fd6e92ba03c4c762d240623703ed99", file: "Pihesiw (Thunderbird).m4a", asset: "https://raw.githubusercontent.com/swampy-spec/gif/main/thunderbird.svg" },
             { id: 24, english: "Duck", cree: "sîsîp", category: "Birds & Animals", hash: "119303c0ad77110aa9bfafb8b6b6cc3cef7e83ff", file: "Sisip (Duck).m4a", asset: "https://raw.githubusercontent.com/swampy-spec/gif/main/duck.svg" },
@@ -171,19 +175,53 @@
             { id: 57, english: "Faith", cree: "Tapowakeyihtamowin", category: "Values", hash: "888a7356d7d703d2dc33076312a7d28d00c668de", file: "Tapowakeyihtamowin Faith.m4a" },
             { id: 58, english: "Cooperation", cree: "Wacewakanihtowin", category: "Values", hash: "888a7356d7d703d2dc33076312a7d28d00c668de", file: "Wacewakanihtowin Cooperation.m4a" },
             { id: 59, english: "Relationship", cree: "Wahkotowin", category: "Values", hash: "888a7356d7d703d2dc33076312a7d28d00c668de", file: "Wahkotowin Relationship.m4a" },
+            
             // Seasons
             { id: 60, english: "Spring", cree: "Miyoskamin", category: "Seasons", hash: "2f776bec534faf0912646256cdc4095d0dc6786b", file: "Miyoskamin (spring).m4a" },
             { id: 61, english: "Summer", cree: "Nîpon", category: "Seasons", hash: "2f776bec534faf0912646256cdc4095d0dc6786b", file: "Nîpon (summer).m4a" },
             { id: 62, english: "Fall", cree: "Takwakin", category: "Seasons", hash: "2f776bec534faf0912646256cdc4095d0dc6786b", file: "Takwakin (fall).m4a" },
             { id: 63, english: "Winter", cree: "Pipon", category: "Seasons", hash: "2f776bec534faf0912646256cdc4095d0dc6786b", file: "Pipon (Winter).m4a" },
+            
             // Misc
             { id: 64, english: "Heart", cree: "Mihtay", category: "Misc", hash: "e31b62a52d733d1265c4f4a61f5fd9fa94ef18b8", file: "Mihtay (heart).m4a" },
             { id: 65, english: "Child Rearing", cree: "Ohpikihawasowin", category: "Misc", hash: "888a7356d7d703d2dc33076312a7d28d00c668de", file: "Ohpikihawasowin Child Rearing.m4a" },
             { id: 66, english: "Pink", cree: "Wapikwaniwinakwan", category: "Misc", hash: "e31b62a52d733d1265c4f4a61f5fd9fa94ef18b8", file: "Wapikwaniwinakwan (pink).m4a" },
-            { id: 67, english: "Friend", cree: "Wichewakan", category: "Misc", hash: "e31b62a52d733d1265c4f4a61f5fd9fa94ef18b8", file: "Wichewakan (friend).m4a" }
+            { id: 67, english: "Friend", cree: "Wichewakan", category: "Misc", hash: "e31b62a52d733d1265c4f4a61f5fd9fa94ef18b8", file: "Wichewakan (friend).m4a" },
+
+
+            // --- SIMULATED OFFLINE COMPILATION (Fallbacks to AI Audio) ---
+            // Clothing
+            { id: 200, english: "Shoe / Moccasin", cree: "maskisin", category: "Clothing" },
+            { id: 201, english: "Coat / Jacket", cree: "miskotâkay", category: "Clothing" },
+            { id: 202, english: "Mitten", cree: "astis", category: "Clothing" },
+            { id: 203, english: "Sock", cree: "asikan", category: "Clothing" },
+            { id: 204, english: "Hat", cree: "astotin", category: "Clothing" },
+            
+            // Body Parts
+            { id: 205, english: "Head", cree: "mistikwân", category: "Body Parts" },
+            { id: 206, english: "Hand", cree: "micihciy", category: "Body Parts" },
+            { id: 207, english: "Foot", cree: "misit", category: "Body Parts" },
+            { id: 208, english: "Eye", cree: "miskîsik", category: "Body Parts" },
+            { id: 209, english: "Hair", cree: "mêstakay", category: "Body Parts" },
+
+            // Food
+            { id: 210, english: "Food", cree: "mîcim", category: "Food" },
+            { id: 211, english: "Water", cree: "nipiy", category: "Food" },
+            { id: 212, english: "Meat", cree: "wiyâs", category: "Food" },
+            { id: 213, english: "Bread", cree: "pahkwêsikan", category: "Food" },
+            { id: 214, english: "Tea", cree: "maskihkîwâpoy", category: "Food" },
+            { id: 215, english: "Berries", cree: "mînis", category: "Food" },
+
+            // Common Verbs (Action Words)
+            { id: 216, english: "He/She eats", cree: "mîcisow", category: "Verbs" },
+            { id: 217, english: "He/She sleeps", cree: "nipâw", category: "Verbs" },
+            { id: 218, english: "He/She walks", cree: "pimohtêw", category: "Verbs" },
+            { id: 219, english: "He/She runs", cree: "pimipahtâw", category: "Verbs" },
+            { id: 220, english: "He/She dances", cree: "nîmihitow", category: "Verbs" },
+            { id: 221, english: "He/She speaks Cree", cree: "nêhiyawêw", category: "Verbs" }
         ];
 
-        const CATEGORIES = ["All", "Greetings", "Numbers", "Birds & Animals", "Values", "Seasons", "Misc"];
+        const CATEGORIES = ["All", "Greetings", "Numbers", "Birds & Animals", "Values", "Seasons", "Clothing", "Body Parts", "Food", "Verbs", "Misc"];
         
         let searchTerm = "";
         let activeCategory = "All";
@@ -245,16 +283,20 @@
         }
 
         async function playAudio(word) {
-            if (!word.hash || !word.file) {
-                return playTTS(word.cree);
-            }
-
             const cardElement = document.getElementById(`card-${word.id}`);
             const spinner = cardElement.querySelector('.audio-spinner');
             const icon = cardElement.querySelector('.audio-icon');
             
             spinner.classList.remove('hidden');
             icon.classList.add('hidden');
+
+            // If it's from the offline compilation with no repo audio mapping, trigger AI TTS immediately
+            if (!word.hash || !word.file) {
+                await playTTS(word.cree);
+                spinner.classList.add('hidden');
+                icon.classList.remove('hidden');
+                return;
+            }
 
             const rawUrl = `https://raw.githubusercontent.com/swampy-spec/audio/${word.hash}/${encodeURIComponent(word.file)}`;
             
@@ -348,7 +390,11 @@
                                         >
                                             <i data-lucide="external-link" size="14"></i>
                                         </a>
-                                    ` : ''}
+                                    ` : `
+                                        <div class="p-2 bg-white/10 rounded-full" title="AI Audio Generated">
+                                            <i data-lucide="sparkles" size="14"></i>
+                                        </div>
+                                    `}
                                 </div>
                             </div>
                         </div>
