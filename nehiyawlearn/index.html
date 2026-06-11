@@ -2,133 +2,392 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cree Word Database</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>nêhiyawêtân · Daily Cree</title>
+    
+    <!-- Tailwind & Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
+        /* ============ DESIGN TOKENS — aspen parkland & big sky ============ */
+        :root{
+            --night:#1d2b24;        /* spruce dusk */
+            --soil:#2e3d33;         /* deep forest panel */
+            --birch:#f6f1e3;        /* birch-bark cream */
+            --paper:#fbf8ef;        /* page */
+            --gold:#d9a441;         /* prairie wheat / sun */
+            --gold-deep:#b07d22;
+            --river:#3f7d8c;        /* north sask. river */
+            --river-deep:#2c5b67;
+            --ember:#c25e3a;        /* fireweed / sunset */
+            --sage:#8aa07a;         /* sage & willow */
+            --ink:#26312b;
+            --ink-soft:#5c685f;
+            --line:#e2dac6;
+            --good:#4d7c52;
+            --bad:#b04a35;
+            --r:18px;
+            --syl-font:'Gadugi','Euphemia UCAS','Euphemia','Aboriginal Sans','Noto Sans Canadian Aboriginal',sans-serif;
+        }
+
+        body {
+            font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+            background-color: var(--paper);
+            color: var(--ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        button { cursor: pointer; border: none; background: none; color: inherit; font-family: inherit; }
+        .sans { font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+        .syl { font-family: var(--syl-font); }
+
+        /* ============ SKY HEADER ============ */
+        #sky{
+            position:relative;
+            background:linear-gradient(to bottom,#16242c 0%,#27495c 34%,#3f7d8c 58%,#d9a441 86%,#c25e3a 100%);
+            color:var(--birch);
+            overflow:hidden;
+            padding:22px 20px 0;
+            transition:background 1.2s;
+        }
+        #sky.day{background:linear-gradient(to bottom,#2c5b67 0%,#3f7d8c 40%,#7fb2b0 70%,#e9d9a8 100%)}
+        #sun{
+            position:absolute;left:50%;width:54px;height:54px;border-radius:50%;
+            background:radial-gradient(circle at 38% 35%,#ffe9b0,#d9a441 70%);
+            box-shadow:0 0 38px 10px rgba(217,164,65,.45);
+            transform:translateX(-50%);
+            bottom:-10px;            
+            transition:bottom 1.4s cubic-bezier(.3,.9,.4,1);
+        }
+        #horizon{display:block;width:100%;height:74px;position:relative;margin-top:8px}
+        .skyrow{position:relative;z-index:2;max-width:1000px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+        .brand h1{font-size:1.9rem;font-weight:400;letter-spacing:.5px}
+        .brand h1 .syl{font-size:1.55rem;opacity:.92;margin-left:10px}
+        .brand p{font-family:-apple-system,'Segoe UI',sans-serif;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;opacity:.78;margin-top:3px}
+        .skystats{display:flex;gap:10px;align-items:center;padding-bottom:4px}
+        .pill{
+            font-family:-apple-system,'Segoe UI',sans-serif;font-size:.78rem;
+            background:rgba(246,241,227,.14);border:1px solid rgba(246,241,227,.3);
+            padding:6px 13px;border-radius:99px;backdrop-filter:blur(3px);
+        }
+
+        /* ============ NAVIGATION TABS ============ */
+        .app-nav {
+            background: var(--birch);
+            border-bottom: 1px solid var(--line);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .app-nav::-webkit-scrollbar { display: none; }
+        .nav-btn {
+            padding: 14px 20px;
+            font-family: -apple-system, 'Segoe UI', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--ink-soft);
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-btn:hover { color: var(--river-deep); background: rgba(0,0,0,0.02); }
+        .nav-btn.active {
+            color: var(--river-deep);
+            border-bottom-color: var(--river-deep);
+            background: rgba(63, 125, 140, 0.05);
+        }
+
+        /* ============ MAIN LAYOUT ============ */
+        main { max-width: 1000px; margin: 0 auto; padding: 26px 18px 80px; }
+        .app-view { display: none; animation: rise .35s ease both; }
+        .app-view.active { display: block; }
+        .screen { display: none; animation: rise .35s ease both; }
+        .screen.on { display: block; }
+        @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+        /* ============ TRAIL SPECIFICS ============ */
+        h2.season{
+            font-size:.8rem;font-family:-apple-system,'Segoe UI',sans-serif;
+            letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);
+            display:flex;align-items:center;gap:14px;margin:26px 0 14px;
+        }
+        h2.season::after{content:'';flex:1;height:1px;background:var(--line)}
+        .trail{display:flex;flex-direction:column;gap:14px; max-width: 700px; margin: 0 auto;}
+        .camp{
+            display:flex;align-items:center;gap:16px;text-align:left;width:100%;
+            background:var(--birch);border:1px solid var(--line);border-radius:var(--r);
+            padding:16px 18px;transition:transform .15s,box-shadow .15s;position:relative;
+        }
+        .camp:not(.locked):hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(38,49,43,.1)}
+        .camp.locked{opacity:.55;cursor:not-allowed}
+        .camp .glyph{
+            width:56px;height:56px;flex:none;border-radius:50%;
+            display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+            background:radial-gradient(circle at 35% 30%,#fff,var(--paper));
+            border:2px solid var(--sage);
+        }
+        .camp.done .glyph{border-color:var(--gold);background:radial-gradient(circle at 35% 30%,#fff6dd,#f3e3b6)}
+        .camp .meta{flex:1;min-width:0}
+        .camp .meta .ttl{font-size:1.08rem}
+        .camp .meta .ttl .syl{color:var(--river-deep);margin-left:8px;font-size:.95rem}
+        .camp .meta .sub{font-family:-apple-system,'Segoe UI',sans-serif;font-size:.78rem;color:var(--ink-soft);margin-top:3px}
+        .camp .stars{font-size:.85rem;letter-spacing:2px;color:var(--gold-deep);flex:none}
+        .camp.locked .stars{color:var(--ink-soft)}
+        
+        .backbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+        .backbtn{font-family:-apple-system,'Segoe UI',sans-serif;font-size:.85rem;color:var(--river-deep);padding:8px 0}
+        .lesson-head{margin:6px 0 20px}
+        .lesson-head h2{font-size:1.7rem;font-weight:400}
+        .lesson-head h2 .syl{color:var(--river-deep);font-size:1.3rem;margin-left:10px}
+        .lesson-head p{color:var(--ink-soft);margin-top:6px;font-style:italic}
+        .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:14px}
+        .wcard{
+            background:var(--birch);border:1px solid var(--line);border-radius:var(--r);
+            padding:18px 18px 14px;position:relative;overflow:hidden;
+        }
+        .wcard::before{
+            content:'';position:absolute;top:0;left:0;right:0;height:5px;
+            background:repeating-linear-gradient(90deg,var(--gold) 0 14px,var(--ember) 14px 28px,var(--river) 28px 42px,var(--soil) 42px 56px);
+            opacity:.85;
+        }
+        .wcard .pic{font-size:2rem;line-height:1}
+        .wcard .sylword{font-family:var(--syl-font);font-size:1.9rem;color:var(--night);margin:10px 0 2px;line-height:1.2}
+        .wcard .sro{font-size:1.18rem;color:var(--river-deep)}
+        .wcard .eng{font-family:-apple-system,'Segoe UI',sans-serif;font-size:.86rem;color:var(--ink-soft);margin-top:4px;min-height:2.2em}
+        .wcard .row{display:flex;gap:8px;margin-top:12px;align-items:center}
+        .playb{
+            font-size:.95rem;background:var(--soil);color:var(--birch);
+            padding:8px 14px;border-radius:99px;font-family:-apple-system,'Segoe UI',sans-serif;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .playb:active{transform:scale(.96)}
+        .dictlink{
+            font-family:-apple-system,'Segoe UI',sans-serif;font-size:.78rem;
+            color:var(--river-deep);text-decoration:none;border-bottom:1px dotted var(--river);
+        }
+        .bigbtn{
+            display:block;width:100%;margin-top:24px;padding:16px;border-radius:var(--r);
+            background:var(--ember);color:var(--birch);font-size:1.05rem;
+            font-family:-apple-system,'Segoe UI',sans-serif;letter-spacing:.03em;
+            box-shadow:0 6px 0 #8d4124;transition:transform .1s; text-align: center;
+        }
+        .bigbtn:active{transform:translateY(3px);box-shadow:0 3px 0 #8d4124}
+        .bigbtn.alt{background:var(--river);box-shadow:0 6px 0 var(--river-deep)}
+        .bigbtn.alt:active{box-shadow:0 3px 0 var(--river-deep)}
+
+        /* QUIZ */
+        .qbar{height:9px;border-radius:99px;background:var(--line);overflow:hidden;margin:10px 0 26px}
+        .qbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--sage),var(--gold));transition:width .3s}
+        .qcard{background:var(--birch);border:1px solid var(--line);border-radius:var(--r);padding:26px 22px;text-align:center}
+        .qkind{font-family:-apple-system,'Segoe UI',sans-serif;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep)}
+        .qprompt{margin:14px 0 4px;font-size:1.05rem;color:var(--ink-soft)}
+        .qword{font-size:2rem;margin:6px 0 2px}
+        .qword.syl{font-size:2.4rem}
+        .qsro{color:var(--river-deep);font-size:1.1rem;margin-bottom:6px}
+        .qplay{margin:8px auto 4px}
+        .opts{display:grid;gap:10px;margin-top:20px}
+        @media(min-width:560px){.opts{grid-template-columns:1fr 1fr}}
+        .opt{
+            padding:15px 14px;border-radius:14px;border:2px solid var(--line);
+            background:var(--paper);font-size:1rem;text-align:center;transition:border-color .12s,background .12s;
+        }
+        .opt .syl{display:block;font-size:1.35rem;margin-bottom:2px}
+        .opt:hover{border-color:var(--sage)}
+        .opt.correct{border-color:var(--good);background:#eef4ec}
+        .opt.wrong{border-color:var(--bad);background:#f7e8e3}
+        .opt:disabled{cursor:default}
+        .feedback{min-height:54px;margin-top:16px;font-family:-apple-system,'Segoe UI',sans-serif}
+        .feedback .yes{color:var(--good);font-size:1.05rem}
+        .feedback .no{color:var(--bad);font-size:.95rem}
+        .feedback .note{color:var(--ink-soft);font-size:.85rem;margin-top:4px;font-style:italic;font-family:Georgia,serif}
+        
+        .slots{min-height:56px;border-bottom:2px dashed var(--sage);display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:8px 4px;margin:18px 0 14px}
+        .tilebank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+        .tile{
+            padding:10px 15px;border-radius:12px;background:var(--soil);color:var(--birch);
+            font-size:1.05rem;border:2px solid transparent;transition:transform .1s;
+        }
+        .tile .syl{font-size:.85rem;opacity:.75;display:block}
+        .tile:active{transform:scale(.95)}
+        .tile.used{opacity:.25;pointer-events:none}
+        .slots .tile{background:var(--river)}
+
+        .done-card{background:var(--birch);border:1px solid var(--line);border-radius:var(--r);padding:40px 24px;text-align:center}
+        .done-card .big{font-size:2.6rem}
+        .done-card h3{font-size:1.6rem;font-weight:400;margin:12px 0 4px}
+        .done-card .syl-h{font-family:var(--syl-font);color:var(--river-deep);font-size:1.2rem}
+        .done-card p{color:var(--ink-soft);margin-top:10px}
+        .starline{font-size:1.7rem;letter-spacing:8px;color:var(--gold-deep);margin-top:14px}
+        
+        /* PHRASES */
+        .phrase{
+            background:var(--birch);border:1px solid var(--line);border-left:5px solid var(--gold);
+            border-radius:12px;padding:14px 16px;margin-bottom:12px;
+        }
+        .phrase .cr{font-size:1.25rem}
+        .phrase .cr .syl{color:var(--river-deep);font-size:1.05rem;margin-left:8px}
+        .phrase .en{font-family:-apple-system,'Segoe UI',sans-serif;font-size:.85rem;color:var(--ink-soft);margin-top:4px}
+        .phrase.lock{opacity:.45;border-left-color:var(--line)}
+        .phrase.lock .cr{filter:blur(0px)}
+        .phrase .from{font-family:-apple-system,'Segoe UI',sans-serif;font-size:.7rem;color:var(--gold-deep);letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
+
+        /* ============ FLIP CARDS (Deck) ============ */
         .perspective-1000 { perspective: 1000px; }
         .preserve-3d { transform-style: preserve-3d; }
         .backface-hidden { backface-visibility: hidden; }
         .rotate-y-180 { transform: rotateY(180deg); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Flashcard flip logic */
-        .card-inner {
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .card.flipped .card-inner {
-            transform: rotateY(180deg);
-        }
+        .card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card.flipped .card-inner { transform: rotateY(180deg); }
+        .asset-img { max-width: 80px; max-height: 80px; margin-top: 0.5rem; }
 
-        .asset-img {
-            max-width: 80px;
-            max-height: 80px;
-            width: auto;
-            height: auto;
-            margin-top: 0.5rem;
-        }
-
+        /* Builder Specifics */
         .builder-btn.selected {
-            background-color: #065f46; /* emerald-800 */
-            color: white;
-            border-color: #064e3b; /* emerald-900 */
+            background-color: var(--soil); 
+            color: var(--birch);
+            border-color: var(--night);
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
+
+        /* Overrides for Tailwind components in dark/light paper theme */
+        .tw-card { background: var(--birch); border: 1px solid var(--line); }
     </style>
 </head>
-<!-- Added vibrant pastel mesh gradient background -->
-<body class="bg-gradient-to-br from-rose-100 via-amber-50 to-sky-100 min-h-screen font-sans relative overflow-x-hidden">
+<body>
 
-    <div class="max-w-7xl mx-auto p-4 md:p-8 relative">
-        <!-- Header -->
-        <header class="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-6 relative z-20">
-            <div class="flex items-center gap-4">
-                <div class="bg-emerald-800 p-3 rounded-2xl text-white shadow-lg">
-                    <i data-lucide="book-open" size="32"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-neutral-900 drop-shadow-sm">Cree Word Database</h1>
-                    <p class="text-neutral-600 font-medium">Interactive study guide</p>
-                </div>
+    <!-- ============ SKY HEADER ============ -->
+    <header id="sky">
+        <div id="sun"></div>
+        <div class="skyrow">
+            <div class="brand">
+                <h1>nêhiyawêtân<span class="syl">ᓀᐦᐃᔭᐍᑖᐣ</span></h1>
+                <p>Daily Cree · let's speak Cree</p>
             </div>
+            <div class="skystats">
+                <span class="pill" id="streakPill">☀ day 1</span>
+                <span class="pill" id="wordPill">0 words</span>
+            </div>
+        </div>
+        <svg id="horizon" viewBox="0 0 860 74" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,40 Q120,18 260,34 T520,30 T860,38 L860,74 L0,74 Z" fill="#2e3d33" opacity=".85"/>
+            <path d="M0,52 Q180,38 360,50 T700,46 T860,52 L860,74 L0,74 Z" fill="#26312b"/>
+            <g fill="#1d2b24">
+                <path d="M70,52 l7,-26 l7,26 z"/><path d="M86,52 l5,-18 l5,18 z"/>
+                <path d="M640,48 l8,-30 l8,30 z"/><path d="M660,48 l5,-16 l5,16 z"/>
+                <path d="M790,52 l6,-22 l6,22 z"/>
+            </g>
+            <g stroke="#f6f1e3" stroke-width="1.6" opacity=".9">
+                <path d="M395,54 L410,22 L425,54 Z" fill="#1d2b24"/>
+                <line x1="406" y1="22" x2="398" y2="12"/><line x1="414" y1="22" x2="422" y2="12"/>
+            </g>
+        </svg>
+    </header>
 
-            <!-- Main Search -->
-            <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+    <!-- ============ NAVIGATION ============ -->
+    <nav class="app-nav px-4 md:px-8 justify-center sm:justify-start">
+        <button class="nav-btn active" onclick="switchAppTab('trail')" id="nav-trail">
+            <i data-lucide="map" size="18"></i> The Trail
+        </button>
+        <button class="nav-btn" onclick="switchAppTab('deck')" id="nav-deck">
+            <i data-lucide="library" size="18"></i> Study Deck
+        </button>
+        <button class="nav-btn" onclick="switchAppTab('builder')" id="nav-builder">
+            <i data-lucide="blocks" size="18"></i> Sentence Builder
+        </button>
+        <button class="nav-btn" onclick="switchAppTab('wotw')" id="nav-wotw">
+            <i data-lucide="star" size="18"></i> Word of the Week
+        </button>
+    </nav>
+
+    <main>
+        <!-- ==========================================
+             VIEW: THE TRAIL 
+             ========================================== -->
+        <div id="view-trail" class="app-view active">
+            
+            <section id="scr-home" class="screen on">
+                <h2 class="season">the trail · mêskanaw</h2>
+                <div class="trail" id="trail"></div>
+                <h2 class="season">put words together · phrase lab</h2>
+                <button class="camp max-w-[700px] mx-auto" id="phraseLabBtn">
+                    <span class="glyph">🪶</span>
+                    <span class="meta">
+                        <span class="ttl">Phrase Lab <span class="syl">ᐱᑭᐢᑵᐃᐧᓇ</span></span>
+                        <span class="sub">Combine the small words you know into real things to say</span>
+                    </span>
+                    <span class="stars" id="phraseCount">›</span>
+                </button>
+            </section>
+
+            <section id="scr-lesson" class="screen">
+                <div class="backbar max-w-[700px] mx-auto"><button class="backbtn" onclick="goTrail('home')">‹ back to the trail</button></div>
+                <div class="lesson-head max-w-[700px] mx-auto"><h2 id="lsnTitle"></h2><p id="lsnDesc"></p></div>
+                <div class="cards" id="lsnCards"></div>
+                <button class="bigbtn max-w-[700px] mx-auto" onclick="startQuiz()">Practice these words →</button>
+            </section>
+
+            <section id="scr-quiz" class="screen">
+                <div class="backbar max-w-[700px] mx-auto"><button class="backbtn" onclick="goTrail('lesson')">‹ back to words</button></div>
+                <div class="qbar max-w-[700px] mx-auto"><i id="qfill"></i></div>
+                <div class="qcard max-w-[700px] mx-auto" id="qcard"></div>
+                <div class="feedback max-w-[700px] mx-auto" id="qfeed"></div>
+            </section>
+
+            <section id="scr-done" class="screen">
+                <div class="done-card max-w-[700px] mx-auto">
+                    <div class="big">🌅</div>
+                    <h3>miywâsin! <span class="syl-h">ᒥᔼᓯᐣ</span></h3>
+                    <p id="doneMsg"></p>
+                    <div class="starline" id="doneStars"></div>
+                    <button class="bigbtn" onclick="goTrail('home')">Back to the trail</button>
+                    <button class="bigbtn alt" onclick="openLesson(state.lesson)">Review the words again</button>
+                </div>
+            </section>
+
+            <section id="scr-phrases" class="screen">
+                <div class="backbar max-w-[700px] mx-auto"><button class="backbtn" onclick="goTrail('home')">‹ back to the trail</button></div>
+                <div class="lesson-head max-w-[700px] mx-auto">
+                    <h2>Phrase Lab <span class="syl">🪶</span></h2>
+                    <p>Small words, woven together — phrases unlock as you finish the lessons they come from.</p>
+                </div>
+                <div id="phraseList" class="max-w-[700px] mx-auto"></div>
+            </section>
+        </div>
+
+        <!-- ==========================================
+             VIEW: STUDY DECK (Dictionary & Categories)
+             ========================================== -->
+        <div id="view-deck" class="app-view">
+            <div class="flex flex-col sm:flex-row gap-4 mb-6 items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold" style="color: var(--night);">Word Database</h2>
+                    <p style="color: var(--ink-soft); font-family: -apple-system, sans-serif;" class="text-sm">Search and practice over 200 words.</p>
+                </div>
+                <!-- Main Search -->
                 <div class="relative group w-full sm:w-80">
                     <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size="18"></i>
                     <input 
                         type="text" 
                         id="search-input"
                         placeholder="Search English or Cree..."
-                        class="w-full pl-12 pr-4 py-3 bg-white/90 backdrop-blur-sm border border-neutral-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                        class="w-full pl-12 pr-4 py-3 bg-white/60 backdrop-blur-sm border border-neutral-300 rounded-2xl shadow-sm outline-none transition-all"
+                        style="font-family: -apple-system, sans-serif;"
                     >
-                </div>
-            </div>
-        </header>
-
-        <!-- Mode Selection Tabs -->
-        <div class="flex border-b border-neutral-300/50 mb-6 overflow-x-auto no-scrollbar relative z-20">
-            <!-- New Word of the Week Tab -->
-            <button id="tab-wotw" onclick="switchMode('wotw')" class="px-6 py-3 border-b-2 border-rose-500 font-bold text-rose-600 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap bg-white/40 rounded-t-xl">
-                <i data-lucide="star" size="18"></i> Word of the Week
-            </button>
-            <button id="tab-local" onclick="switchMode('local')" class="px-6 py-3 border-b-2 border-transparent font-medium text-neutral-600 hover:text-neutral-800 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap">
-                <i data-lucide="database" size="18"></i> Local Study Deck
-            </button>
-            <button id="tab-builder" onclick="switchMode('builder')" class="px-6 py-3 border-b-2 border-transparent font-medium text-neutral-600 hover:text-neutral-800 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap">
-                <i data-lucide="blocks" size="18"></i> Sentence Builder
-            </button>
-        </div>
-
-        <!-- Dynamic Workspace Area -->
-        <div class="relative min-h-[550px] w-full rounded-3xl">
-            <!-- Sacred Star Blanket Background Watermark (Multiply blend allows pastels to shine through) -->
-            <div class="absolute inset-0 -z-10 pointer-events-none opacity-[0.12] mix-blend-multiply bg-center bg-no-repeat bg-contain max-w-5xl mx-auto" style="background-image: url('14e87a10-78a9-4b3e-a4c0-0e66c96d29cd.png');"></div>
-
-            <!-- View 0: Word of the Week (Startup Page) -->
-            <div id="wotw-view" class="flex flex-col items-center justify-center py-4 relative z-10">
-                <div class="bg-white/80 backdrop-blur-xl border-4 border-white shadow-2xl rounded-3xl p-8 md:p-12 max-w-2xl w-full text-center relative overflow-hidden">
-                    <!-- Decorative colorful blobs inside the card -->
-                    <div class="absolute -top-16 -right-16 w-40 h-40 bg-yellow-300 rounded-full mix-blend-multiply filter blur-2xl opacity-60"></div>
-                    <div class="absolute -bottom-16 -left-16 w-40 h-40 bg-sky-300 rounded-full mix-blend-multiply filter blur-2xl opacity-60"></div>
-                    
-                    <h2 class="text-rose-500 font-extrabold tracking-widest uppercase text-sm mb-2 flex items-center justify-center gap-2 relative z-10">
-                        <i data-lucide="star" size="18"></i> Word of the Week
-                    </h2>
-                    
-                    <h3 class="text-5xl md:text-7xl font-black text-neutral-800 mt-4 mb-2 tracking-tight drop-shadow-sm relative z-10">
-                        miyo-kîsikâw
-                    </h3>
-                    <p class="text-xl md:text-2xl text-blue-600 font-bold mb-8 relative z-10">
-                        "It is a good day"
-                    </p>
-
-                    <button onclick="playWOTWAudio()" class="mx-auto flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 relative z-10">
-                        <i data-lucide="volume-2" size="24"></i> Hear Pronunciation
-                    </button>
-
-                    <!-- Teacher's Corner -->
-                    <div class="mt-12 pt-6 border-t-2 border-neutral-200 text-left relative z-10">
-                        <h4 class="font-bold text-neutral-800 flex items-center gap-2 mb-2 text-lg">
-                            <i data-lucide="graduation-cap" size="20" class="text-rose-500"></i> Teacher's Corner
-                        </h4>
-                        <p class="text-sm text-neutral-600 mb-5 leading-relaxed font-medium">
-                            Use this phrase to greet your classroom each morning! It sets a positive intention for the students. To explore the syllabics (ᒥᔪ ᑮᓯᑳᐤ) and deeper grammatical breakdowns, click the reference link below.
-                        </p>
-                        <a href="https://itwewina.altlab.app/search/?q=miyo-kisikaw" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-xl font-bold text-sm transition-colors shadow-sm">
-                            <i data-lucide="external-link" size="16"></i> Verify on itwêwina Dictionary
-                        </a>
-                    </div>
                 </div>
             </div>
 
             <!-- View 1: Local Deck Filters -->
-            <div id="local-filters" class="hidden mb-8 transition-all w-full relative z-20">
-                <div class="bg-white/80 backdrop-blur-xl shadow-lg border border-white/60 rounded-3xl p-5 md:p-6">
-                    <h3 class="text-emerald-900 font-extrabold mb-4 flex items-center gap-2 text-lg">
-                        <i data-lucide="layers" size="20"></i> Select a Category to Study
+            <div id="local-filters" class="mb-8 transition-all w-full relative z-20">
+                <div class="tw-card shadow-sm rounded-3xl p-5 md:p-6">
+                    <h3 class="font-bold mb-4 flex items-center gap-2 text-lg" style="color: var(--soil);">
+                        <i data-lucide="layers" size="20"></i> Select a Category
                     </h3>
                     <div id="categories-bar" class="flex flex-wrap gap-2 md:gap-3">
                         <!-- Buttons generated by JS -->
@@ -137,89 +396,129 @@
             </div>
 
             <!-- Grid Container for Local Cards -->
-            <div id="word-grid" class="hidden grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 relative z-10">
+            <div id="word-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 relative z-10 sans">
                 <!-- Cards generated by JS -->
             </div>
 
             <!-- Empty State for Searches -->
-            <div id="empty-state" class="hidden text-center py-20 bg-white/90 backdrop-blur-sm rounded-3xl border border-neutral-100 px-6 relative z-10 shadow-sm">
-                <p class="text-neutral-500 font-bold text-lg mb-4">No results found.</p>
+            <div id="empty-state" class="hidden text-center py-20 tw-card rounded-3xl px-6 relative z-10 mt-8">
+                <p class="font-bold text-lg mb-4" style="color: var(--ink-soft);">No results found.</p>
             </div>
+        </div>
 
-            <!-- View 3: Sentence Builder Workspace -->
-            <div id="builder-view" class="hidden flex-col gap-6 relative z-10 pb-10">
-                
+        <!-- ==========================================
+             VIEW: SENTENCE BUILDER 
+             ========================================== -->
+        <div id="view-builder" class="app-view sans">
+            <div class="flex flex-col gap-6 relative z-10">
                 <!-- Output Result Panel -->
-                <div class="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border-2 border-white p-8 text-center relative overflow-hidden">
-                    <div class="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-rose-400 via-amber-400 to-sky-400"></div>
-                    <span class="text-[10px] uppercase tracking-widest opacity-50 font-bold mb-2 block">Generated SRO</span>
-                    <h2 id="builder-cree-output" class="text-4xl md:text-5xl font-extrabold text-emerald-900 mb-4 tracking-tight drop-shadow-sm"></h2>
-                    <p id="builder-english-output" class="text-lg md:text-xl text-neutral-600 font-bold italic mb-6"></p>
+                <div class="tw-card rounded-3xl shadow-md p-8 text-center relative overflow-hidden">
+                    <div class="absolute top-0 inset-x-0 h-2" style="background: linear-gradient(90deg, var(--gold), var(--river));"></div>
+                    <span class="text-[10px] uppercase tracking-widest opacity-50 font-bold mb-2 block">Generated Phrase</span>
+                    <h2 id="builder-cree-output" class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight drop-shadow-sm syl" style="color: var(--night);"></h2>
+                    <p id="builder-english-output" class="text-lg md:text-xl font-bold italic mb-6" style="color: var(--ink-soft);"></p>
                     
                     <input type="hidden" id="builder-cree-raw" value="" />
                     
-                    <button onclick="playBuilderAudio()" class="mx-auto px-6 py-3 bg-gradient-to-r from-emerald-100 to-teal-100 hover:from-emerald-200 hover:to-teal-200 border border-emerald-200 text-emerald-800 font-bold rounded-full transition-colors flex items-center gap-2 shadow-sm">
+                    <button onclick="playBuilderAudio()" class="mx-auto px-6 py-3 bg-white/50 hover:bg-white/80 border border-neutral-300 font-bold rounded-full transition-colors flex items-center gap-2 shadow-sm" style="color: var(--river-deep);">
                         <i data-lucide="volume-2" size="20"></i> Play Pronunciation
                     </button>
                 </div>
 
                 <!-- Instructional Tip -->
-                <div class="bg-blue-50/90 backdrop-blur-sm border border-blue-200 p-4 rounded-xl flex gap-3 text-sm text-blue-800 items-start shadow-sm">
+                <div class="p-4 rounded-xl flex gap-3 text-sm items-start shadow-sm" style="background: rgba(63, 125, 140, 0.1); border: 1px solid rgba(63, 125, 140, 0.3); color: var(--river-deep);">
                     <i data-lucide="info" size="20" class="shrink-0 mt-0.5"></i>
-                    <p><strong>Cree is polysynthetic!</strong> When building a sentence, the person (I, You, We) attaches to the front of the verb as a prefix (like <em>ni-</em> or <em>ki-</em>), and the tense (like <em>wî-</em> for future) is sandwiched in between. Select blocks below to see the grammar update automatically.</p>
+                    <p><strong>Cree is polysynthetic!</strong> When building a sentence, the person (I, You, We) attaches to the front of the verb as a prefix (like <em>ni-</em> or <em>ki-</em>), and the tense (like <em>wî-</em> for future) is sandwiched in between. Select blocks below.</p>
                 </div>
 
                 <!-- Column Selection Area -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Column 1: Subjects -->
-                    <div class="bg-white/80 p-5 rounded-2xl border border-white shadow-md backdrop-blur-sm">
+                    <div class="tw-card p-5 rounded-2xl shadow-sm">
                         <div class="flex items-center gap-2 mb-4 border-b border-neutral-200 pb-2">
-                            <div class="bg-indigo-100 p-1.5 rounded-lg text-indigo-700"><i data-lucide="user" size="18"></i></div>
+                            <div class="p-1.5 rounded-lg" style="background: var(--gold); color: var(--paper);"><i data-lucide="user" size="18"></i></div>
                             <h3 class="font-bold text-neutral-800">1. Who? (Subject)</h3>
                         </div>
                         <div id="col-pronouns" class="flex flex-col gap-2"></div>
                     </div>
 
                     <!-- Column 2: Preverbs -->
-                    <div class="bg-white/80 p-5 rounded-2xl border border-white shadow-md backdrop-blur-sm">
+                    <div class="tw-card p-5 rounded-2xl shadow-sm">
                         <div class="flex items-center gap-2 mb-4 border-b border-neutral-200 pb-2">
-                            <div class="bg-amber-100 p-1.5 rounded-lg text-amber-700"><i data-lucide="clock" size="18"></i></div>
+                            <div class="p-1.5 rounded-lg" style="background: var(--river); color: var(--paper);"><i data-lucide="clock" size="18"></i></div>
                             <h3 class="font-bold text-neutral-800">2. When? (Preverb)</h3>
                         </div>
                         <div id="col-preverbs" class="flex flex-col gap-2"></div>
                     </div>
 
                     <!-- Column 3: Verbs -->
-                    <div class="bg-white/80 p-5 rounded-2xl border border-white shadow-md backdrop-blur-sm">
+                    <div class="tw-card p-5 rounded-2xl shadow-sm">
                         <div class="flex items-center gap-2 mb-4 border-b border-neutral-200 pb-2">
-                            <div class="bg-rose-100 p-1.5 rounded-lg text-rose-700"><i data-lucide="activity" size="18"></i></div>
+                            <div class="p-1.5 rounded-lg" style="background: var(--ember); color: var(--paper);"><i data-lucide="activity" size="18"></i></div>
                             <h3 class="font-bold text-neutral-800">3. Action (VAI)</h3>
                         </div>
                         <div id="col-verbs" class="flex flex-col gap-2"></div>
                     </div>
                 </div>
-
             </div>
-
         </div>
 
-        <!-- Footer With Proper Attributions -->
-        <footer class="mt-20 py-8 border-t border-neutral-300/50 text-center relative z-10 px-4">
-            <p class="text-neutral-600 text-sm font-bold italic mb-4 drop-shadow-sm">"nêhiyawêwin: Keeping the language alive."</p>
-            <p class="text-neutral-500 text-xs max-w-2xl mx-auto leading-relaxed mb-3">
-                A portion of the translations and vocabulary was compiled by the Neyaskweyâhk Cree Department at Miyo Wahkohtowin Education. We extend our sincere gratitude, <strong>ay hay</strong> to the Maskwacis Cree speakers for their invaluable guidance and contributions to this work.
-            </p>
-            <p class="text-neutral-500 text-[10px] max-w-2xl mx-auto leading-relaxed border-t border-neutral-300/50 pt-3">
-                Grammar structures and Sentence Builder algorithms are adapted from Chelsea Vowel's <em>mâci-nêhiyawêtân</em> lessons (apihtawikosisan.com) under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" class="underline hover:text-neutral-800 font-bold">CC BY-NC-SA 4.0 license</a>.
-            </p>
-        </footer>
-    </div>
+        <!-- ==========================================
+             VIEW: WORD OF THE WEEK
+             ========================================== -->
+        <div id="view-wotw" class="app-view sans">
+            <div class="flex flex-col items-center justify-center py-4 relative z-10">
+                <div class="tw-card shadow-lg rounded-3xl p-8 md:p-12 max-w-2xl w-full text-center relative overflow-hidden">
+                    <h2 class="font-extrabold tracking-widest uppercase text-sm mb-2 flex items-center justify-center gap-2 relative z-10" style="color: var(--ember);">
+                        <i data-lucide="star" size="18"></i> Word of the Week
+                    </h2>
+                    
+                    <h3 class="text-5xl md:text-7xl font-black mt-4 mb-2 tracking-tight drop-shadow-sm relative z-10" style="color: var(--night);">
+                        miyo-kîsikâw
+                    </h3>
+                    <h4 class="text-3xl syl mb-4" style="color: var(--river-deep);">ᒥᔪ ᑮᓯᑳᐤ</h4>
+                    <p class="text-xl md:text-2xl font-bold mb-8 relative z-10" style="color: var(--river-deep);">
+                        "It is a good day"
+                    </p>
 
-    <!-- Pronunciation Laboratory Practice Modal -->
-    <div id="practice-modal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
+                        <button onclick="playWOTWAudio()" class="flex items-center justify-center gap-3 px-8 py-4 bg-white/50 border border-neutral-300 hover:bg-white/80 rounded-full font-bold text-lg transition-all" style="color: var(--night);">
+                            <i data-lucide="volume-2" size="24"></i> Pronounce
+                        </button>
+                        <button onclick="openPracticeModalFromWOTW()" class="flex items-center justify-center gap-3 px-8 py-4 rounded-full font-bold text-lg shadow-md hover:shadow-lg transition-all" style="background: var(--soil); color: var(--birch);">
+                            <i data-lucide="mic" size="24"></i> Practice Lab
+                        </button>
+                    </div>
+
+                    <!-- Teacher's Corner -->
+                    <div class="mt-12 pt-6 border-t-2 border-neutral-200 text-left relative z-10">
+                        <h4 class="font-bold flex items-center gap-2 mb-2 text-lg" style="color: var(--night);">
+                            <i data-lucide="graduation-cap" size="20" style="color: var(--ember);"></i> Teacher's Corner
+                        </h4>
+                        <p class="text-sm mb-5 leading-relaxed font-medium" style="color: var(--ink-soft);">
+                            Use this phrase to greet your classroom each morning! It sets a positive intention for the students. To explore the syllabics and deeper grammatical breakdowns, click the reference link below.
+                        </p>
+                        <a href="https://itwewina.altlab.app/search/?q=miyo-kisikaw" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-colors shadow-sm" style="background: rgba(63, 125, 140, 0.1); border: 1px solid rgba(63, 125, 140, 0.3); color: var(--river-deep);">
+                            <i data-lucide="external-link" size="16"></i> Verify on itwêwina
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="sans text-center mt-12 mb-8">
+        <p class="font-bold italic mb-4" style="color: var(--ink-soft);">"nêhiyawêwin: Keeping the language alive."</p>
+        <p class="text-xs max-w-2xl mx-auto leading-relaxed mb-3" style="color: var(--ink-soft);">
+            A portion of the translations and vocabulary was compiled by the Neyaskweyâhk Cree Department at Miyo Wahkohtowin Education. <strong>ay hay</strong> to the Maskwacis Cree speakers. Audio recordings by first-language speakers are linked from <a href="https://itwewina.altlab.app/" target="_blank" rel="noopener" style="color: var(--river-deep); text-decoration: underline;">itwêwina</a> (ALTLab, U of A) and Maskwacîs Education Schools Commission.
+        </p>
+    </footer>
+
+    <!-- ============ PRONUNCIATION LAB MODAL ============ -->
+    <div id="practice-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 sans">
         <div class="bg-white rounded-3xl shadow-2xl border border-neutral-100 max-w-lg w-full overflow-hidden" onclick="event.stopPropagation()">
-            <!-- Modal Header -->
-            <div class="bg-emerald-800 text-white p-6 flex justify-between items-center">
+            <div class="text-white p-6 flex justify-between items-center" style="background: var(--soil);">
                 <div class="flex items-center gap-2">
                     <i data-lucide="mic" class="animate-pulse"></i>
                     <h3 class="font-bold text-lg">Pronunciation Lab</h3>
@@ -229,76 +528,69 @@
                 </button>
             </div>
 
-            <!-- Modal Content -->
             <div class="p-6 space-y-6">
                 <!-- Target word display -->
                 <div class="text-center space-y-1">
-                    <span id="modal-category" class="text-[10px] uppercase tracking-widest text-emerald-700 font-extrabold bg-emerald-50 px-2.5 py-1 rounded-full">...</span>
-                    <h4 id="modal-cree-word" class="text-3xl font-extrabold text-neutral-800 pt-2">...</h4>
-                    <p id="modal-english-word" class="text-sm text-neutral-500 italic">...</p>
+                    <span id="modal-category" class="text-[10px] uppercase tracking-widest font-extrabold px-2.5 py-1 rounded-full" style="color: var(--soil); background: var(--birch);">...</span>
+                    <h4 id="modal-cree-word" class="text-3xl font-extrabold pt-2 syl" style="color: var(--night);">...</h4>
+                    <p id="modal-english-word" class="text-sm italic" style="color: var(--ink-soft);">...</p>
                 </div>
 
                 <!-- Native Playback Area -->
-                <div id="modal-reference-audio-section" class="bg-neutral-50 p-4 rounded-2xl flex items-center justify-between border border-neutral-100">
+                <div id="modal-reference-audio-section" class="p-4 rounded-2xl flex items-center justify-between border" style="background: var(--paper); border-color: var(--line);">
                     <div class="flex items-center gap-3">
-                        <div class="bg-emerald-100 p-2.5 rounded-full text-emerald-800">
+                        <div class="p-2.5 rounded-full" style="background: var(--birch); color: var(--soil);">
                             <i data-lucide="volume-2"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-bold text-neutral-700 uppercase tracking-wider">Reference Accent</p>
-                            <p class="text-xs text-neutral-500">Listen to repository audio</p>
+                            <p class="text-xs font-bold uppercase tracking-wider" style="color: var(--night);">Reference Accent</p>
+                            <p class="text-xs" style="color: var(--ink-soft);">Listen to correct audio</p>
                         </div>
                     </div>
-                    <button onclick="playTargetWordReference()" class="px-4 py-2 bg-emerald-800 text-white text-xs font-bold rounded-xl hover:bg-emerald-700 transition-colors flex items-center gap-1">
+                    <button onclick="playTargetWordReference()" class="px-4 py-2 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1" style="background: var(--river-deep);">
                         <i data-lucide="play" size="14"></i> Play
                     </button>
                 </div>
                 
-                <!-- No Audio Warning for Modal -->
-                <div id="modal-no-audio-warning" class="hidden bg-neutral-100 p-4 rounded-2xl flex items-center justify-center border border-neutral-200">
-                    <p class="text-xs font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="volume-x" size="14"></i> No repository audio available for this word
+                <div id="modal-no-audio-warning" class="hidden p-4 rounded-2xl flex items-center justify-center border" style="background: var(--paper); border-color: var(--line);">
+                    <p class="text-xs font-bold uppercase tracking-wider flex items-center gap-2" style="color: var(--ink-soft);">
+                        <i data-lucide="sparkles" size="14"></i> AI Speech Generation Available
                     </p>
                 </div>
 
                 <!-- User voice recording station -->
                 <div class="flex flex-col items-center justify-center space-y-3 pt-4 border-t border-neutral-100">
-                    <div id="record-timer" class="text-2xl font-mono text-neutral-700 font-bold">00:00</div>
+                    <div id="record-timer" class="text-2xl font-mono font-bold" style="color: var(--night);">00:00</div>
                     
-                    <button id="mic-practice-btn" onclick="togglePracticeRecording()" class="w-20 h-20 bg-emerald-100 hover:bg-emerald-200 border-4 border-emerald-500 rounded-full flex items-center justify-center text-emerald-700 transition-all cursor-pointer relative">
+                    <button id="mic-practice-btn" onclick="togglePracticeRecording()" class="w-20 h-20 border-4 rounded-full flex items-center justify-center transition-all cursor-pointer relative" style="background: var(--birch); border-color: var(--sage); color: var(--soil);">
                         <i data-lucide="mic" size="32"></i>
                     </button>
                     
-                    <p id="record-instructions" class="text-xs font-semibold text-neutral-400">Tap to start recording</p>
+                    <p id="record-instructions" class="text-xs font-semibold" style="color: var(--ink-soft);">Tap to start recording</p>
                 </div>
 
                 <!-- AI Speech Analysis Output Panel -->
                 <div id="analysis-section" class="hidden mt-6 pt-6 border-t border-neutral-100">
-                    <!-- Loading Status -->
                     <div id="analysis-loading" class="hidden text-center py-4 space-y-2">
-                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-3 border-emerald-800 border-t-transparent"></div>
-                        <p class="text-xs text-neutral-500 font-medium animate-pulse">Gemini AI grading phonetics...</p>
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-3 border-t-transparent" style="border-color: var(--soil);"></div>
+                        <p class="text-xs font-medium animate-pulse" style="color: var(--ink-soft);">Gemini AI grading phonetics...</p>
                     </div>
 
-                    <!-- Error Status -->
                     <div id="analysis-error" class="hidden text-center py-4 bg-red-50 border border-red-100 rounded-2xl p-4">
                         <p class="text-red-700 text-sm font-semibold">Grading Failed</p>
                         <p id="analysis-error-desc" class="text-xs text-red-500 mt-1">Audio was too quiet or connection broken.</p>
                     </div>
 
-                    <!-- Success Status -->
                     <div id="analysis-success" class="hidden space-y-4">
-                        <div class="flex flex-col sm:flex-row items-center gap-4 bg-neutral-50 p-4 rounded-2xl border border-neutral-100">
-                            <!-- Circular Score Badge -->
-                            <div id="score-gauge-container" class="relative flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 border-4 border-emerald-500 text-emerald-800 font-bold text-2xl">
+                        <div class="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl border" style="background: var(--paper); border-color: var(--line);">
+                            <div id="score-gauge-container" class="relative flex items-center justify-center w-20 h-20 rounded-full border-4 font-bold text-2xl shrink-0" style="background: var(--birch); border-color: var(--good); color: var(--soil);">
                                 <span id="analysis-score">0%</span>
                             </div>
-                            <!-- Feedback Details -->
                             <div class="flex-1 text-center sm:text-left">
-                                <h5 class="font-bold text-neutral-700 text-xs uppercase tracking-wider flex items-center justify-center sm:justify-start gap-1.5">
-                                    <i data-lucide="sparkles" size="14" class="text-emerald-700"></i> Speech Lab Feedback
+                                <h5 class="font-bold text-xs uppercase tracking-wider flex items-center justify-center sm:justify-start gap-1.5" style="color: var(--night);">
+                                    <i data-lucide="sparkles" size="14" style="color: var(--gold-deep);"></i> Speech Lab Feedback
                                 </h5>
-                                <p id="analysis-feedback" class="text-xs text-neutral-600 mt-1.5 leading-relaxed font-medium">...</p>
+                                <p id="analysis-feedback" class="text-xs mt-1.5 leading-relaxed font-medium" style="color: var(--ink-soft);">...</p>
                             </div>
                         </div>
                     </div>
@@ -308,22 +600,94 @@
     </div>
 
     <script>
+        'use strict';
         const apiKey = "";
         
-        // Mode Management
-        let appMode = "wotw"; 
-        let searchTerm = "";
-        let activeCategory = "Greetings"; // Prevents massive scrolling by defaulting to a small category!
+        /* =====================================================================
+           DATA MERGE — Plains Cree (nêhiyawêwin, Y-dialect)
+           Combines App 1's deep vocabulary with App 2's lesson structures.
+        ===================================================================== */
+        
+        // --- App 2 Data (The Trail) ---
+        const LESSONS=[
+         {id:'l1',glyph:'🌄',title:'First light',syl:'ᓂᑲᐣ',
+          desc:'Greetings and the little words that carry every conversation.',
+          words:[
+           {sro:'tânisi',syl:'ᑖᓂᓯ',en:'hello / how are you?',pic:'👋'},
+           {sro:'tawâw',syl:'ᑕᐚᐤ',en:'welcome — come in',pic:'🛖'},
+           {sro:'miywâsin',syl:'ᒥᔼᓯᐣ',en:'it is good / nice',pic:'🌿'},
+           {sro:'mâmaskâc',syl:'ᒫᒪᐢᑳᐨ',en:'amazing! astonishing!',pic:'✨'},
+           {sro:'ôta',syl:'ᐆᑕ',en:'here',pic:'📍'},
+           {sro:'mistahi',syl:'ᒥᐢᑕᐦᐃ',en:'a lot / very much',pic:'⛰️'},
+           {sro:'namôya',syl:'ᓇᒨᔭ',en:'no / not',pic:'🚫'},
+           {sro:'tâpwê',syl:'ᑖᐻ',en:'truly / really',pic:'💯'},
+           {sro:'êkwa',syl:'ᐁᑿ',en:'and / now',pic:'➕'},
+          ]},
+         {id:'l2',glyph:'🍓',title:'At the table',syl:'ᒦᒋᓱᐃᐧᐣ',
+          desc:'Tasting, admiring, and pointing things out.',
+          words:[
+           {sro:'niya',syl:'ᓂᔭ',en:'me / I / mine',pic:'🙋'},
+           {sro:'kiya',syl:'ᑭᔭ',en:'you / yours',pic:'🫵'},
+           {sro:'ôma',syl:'ᐆᒪ',en:'this (thing)',pic:'👉'},
+           {sro:'wîhkasin',syl:'ᐑᐦᑲᓯᐣ',en:'it is delicious',pic:'😋'},
+           {sro:'katawasisin',syl:'ᑲᑕᐘᓯᓯᐣ',en:'it is beautiful',pic:'🌸'},
+           {sro:'miyosiw',syl:'ᒥᔪᓯᐤ',en:'she/he is good',pic:'💛'},
+           {sro:'nipiy',syl:'ᓂᐱᐩ',en:'water',pic:'💧'},
+          ]},
+         {id:'l3',glyph:'🔥',title:'Around the fire',syl:'ᐃᐢᑯᑌᐤ',
+          desc:'Yes, but, thanks, always — the glue of friendly talk.',
+          words:[
+           {sro:'êha',syl:'ᐁᐦᐊ',en:'yes',pic:'✅'},
+           {sro:'mâka',syl:'ᒫᑲ',en:'but',pic:'↔️'},
+           {sro:'kinanâskomitin',syl:'ᑭᓇᓈᐢᑯᒥᑎᐣ',en:'thank you',pic:'🙏'},
+           {sro:'hay-hay',syl:'ᐦᐊᐩ ᐦᐊᐩ',en:'thanks!',pic:'🤝'},
+           {sro:'kâkikê',syl:'ᑳᑭᑫ',en:'always',pic:'♾️'},
+           {sro:'mitoni',syl:'ᒥᑐᓂ',en:'really / completely',pic:'🎯'},
+           {sro:'kiyâm',syl:'ᑭᔮᒼ',en:"it's okay / never mind",pic:'🕊️'},
+          ]},
+         {id:'l4',glyph:'🌾',title:'The land',syl:'ᐊᐢᑭᐩ',
+          desc:'askiy — the land that holds the language.',
+          words:[
+           {sro:'askiy',syl:'ᐊᐢᑭᐩ',en:'land / earth',pic:'🌍'},
+           {sro:'kîsik',syl:'ᑮᓯᐠ',en:'sky',pic:'☁️'},
+           {sro:'pîsim',syl:'ᐲᓯᒼ',en:'sun / month',pic:'☀️'},
+           {sro:'sâkahikan',syl:'ᓵᑲᐦᐃᑲᐣ',en:'lake',pic:'🏞️'},
+           {sro:'sîpiy',syl:'ᓰᐱᐩ',en:'river',pic:'🌊'},
+           {sro:'mistik',syl:'ᒥᐢᑎᐠ',en:'tree / stick',pic:'🌲'},
+           {sro:'wâsakâm',syl:'ᐚᓴᑳᒼ',en:'along the shore',pic:'🏖️'},
+          ]},
+         {id:'l5',glyph:'🐾',title:'Relatives',syl:'ᐱᓯᐢᑭᐘᐠ',
+          desc:'The animals you will meet on the trail.',
+          words:[
+           {sro:'atim',syl:'ᐊᑎᒼ',en:'dog',pic:'🐕'},
+           {sro:'minôs',syl:'ᒥᓅᐢ',en:'cat',pic:'🐈'},
+           {sro:'maskwa',syl:'ᒪᐢᑿ',en:'bear',pic:'🐻'},
+           {sro:'mostos',syl:'ᒧᐢᑐᐢ',en:'buffalo / cow',pic:'🦬'},
+           {sro:'niska',syl:'ᓂᐢᑲ',en:'goose',pic:'🪿'},
+           {sro:'wâpos',syl:'ᐚᐳᐢ',en:'rabbit',pic:'🐇'},
+           {sro:'sîsîp',syl:'ᓰᓰᑊ',en:'duck',pic:'🦆'},
+          ]},
+        ];
 
-        // Recording System References
-        let mediaRecorder = null;
-        let audioChunks = [];
-        let recordTimerInterval = null;
-        let recordSeconds = 0;
-        let localStream = null;
-        let currentPracticeWord = null;
+        const PHRASES=[
+         {cr:'tânisi, tawâw!',syl:'ᑖᓂᓯ, ᑕᐚᐤ!',en:'Hello — welcome, come in!',needs:['l1'],order:['tânisi','tawâw']},
+         {cr:'tâpwê miywâsin',syl:'ᑖᐻ ᒥᔼᓯᐣ',en:'It is really good.',needs:['l1'],order:['tâpwê','miywâsin']},
+         {cr:'mistahi miywâsin ôta',syl:'ᒥᐢᑕᐦᐃ ᒥᔼᓯᐣ ᐆᑕ',en:'It is very nice here.',needs:['l1'],order:['mistahi','miywâsin','ôta']},
+         {cr:'namôya miywâsin',syl:'ᓇᒨᔭ ᒥᔼᓯᐣ',en:'It is not good.',needs:['l1'],order:['namôya','miywâsin']},
+         {cr:'wîhkasin ôma!',syl:'ᐑᐦᑲᓯᐣ ᐆᒪ!',en:'This is delicious!',needs:['l2'],order:['wîhkasin','ôma']},
+         {cr:'tâpwê katawasisin',syl:'ᑖᐻ ᑲᑕᐘᓯᓯᐣ',en:'It is truly beautiful.',needs:['l1','l2'],order:['tâpwê','katawasisin']},
+         {cr:'mistahi kinanâskomitin',syl:'ᒥᐢᑕᐦᐃ ᑭᓇᓈᐢᑯᒥᑎᐣ',en:'Thank you very much.',needs:['l1','l3'],order:['mistahi','kinanâskomitin']},
+         {cr:'wîhkasin ôma, hay-hay!',syl:'ᐑᐦᑲᓯᐣ ᐆᒪ, ᐦᐊᐩ ᐦᐊᐩ!',en:'This is delicious — thanks!',needs:['l2','l3'],order:['wîhkasin','ôma','hay-hay']},
+         {cr:'êha, mâka namôya ôta',syl:'ᐁᐦᐊ, ᒫᑲ ᓇᒨᔭ ᐆᑕ',en:'Yes — but not here.',needs:['l1','l3'],order:['êha','mâka','namôya','ôta']},
+         {cr:'katawasisin askiy',syl:'ᑲᑕᐘᓯᓯᐣ ᐊᐢᑭᐩ',en:'The land is beautiful.',needs:['l2','l4'],order:['katawasisin','askiy']},
+         {cr:'maskwa ôta! mâmaskâc!',syl:'ᒪᐢᑿ ᐆᑕ! ᒫᒪᐢᑳᐨ!',en:'A bear, here! Amazing!',needs:['l1','l5'],order:['maskwa','ôta','mâmaskâc']},
+         {cr:'kâkikê katawasisin kîsik',syl:'ᑳᑭᑫ ᑲᑕᐘᓯᓯᐣ ᑮᓯᐠ',en:'The sky is always beautiful.',needs:['l2','l3','l4'],order:['kâkikê','katawasisin','kîsik']},
+        ];
 
-        // --- SENTENCE BUILDER GRAMMAR DATA ---
+        const ALLWORDS=LESSONS.flatMap(l=>l.words.map(w=>({...w,lesson:l.id})));
+        const wordBy=Object.fromEntries(ALLWORDS.map(w=>[w.sro,w]));
+
+        // --- App 1 Data (Database & Builder) ---
         const PRONOUNS = [
             { id: 'niya', cree: 'niya', english: 'I', prefix: 'ni', vowelPrefix: 'nit', suffix: 'n' },
             { id: 'kiya', cree: 'kiya', english: 'You', prefix: 'ki', vowelPrefix: 'kit', suffix: 'n' },
@@ -357,16 +721,16 @@
         // Curated Local Database
         const CREE_DATA = [
             // Numbers
-            { id: 1, english: "One", cree: "pēyak", category: "Numbers", hash: "9f8e53c578f542a1b844ee4ca24ae4a2511e84d8", file: "1 Peyak.m4a" },
-            { id: 2, english: "Two", cree: "nīso", category: "Numbers", hash: "fe9615d1f325f02ca06aff6496d830910a8d161a", file: "2 Niso.m4a" },
-            { id: 3, english: "Three", cree: "nisto", category: "Numbers", hash: "fe9615d1f325f02ca06aff6496d830910a8d161a", file: "3 Nisto.m4a" },
-            { id: 4, english: "Four", cree: "nēwo", category: "Numbers", hash: "caf0d7a296a658a89f2abb984d1e12da224e44b1", file: "4 Newo.m4a" },
-            { id: 5, english: "Five", cree: "niyānan", category: "Numbers", hash: "8117cd8a09a247c7d63fe1440870e274b6676e47", file: "5 niyānan.m4a" },
-            { id: 6, english: "Six", cree: "nikotwâsik", category: "Numbers", hash: "d10ebd6739f52f4f429f026599bcc7f0a2da70cd", file: "6 Nikotwâsik.m4a" },
-            { id: 7, english: "Seven", cree: "tēpakohp", category: "Numbers", hash: "f9cb97105a8054fd7035c7cc78ad1a3ca6286e9a", file: "7-tépakohp.m4a" },
-            { id: 8, english: "Eight", cree: "ayinānēw", category: "Numbers", hash: "e4478531849680f61d4cc1e8d9d5996603dce2b5", file: "8-ayinānēw.m4a" },
-            { id: 9, english: "Nine", cree: "kēkā-mitātaht", category: "Numbers", hash: "85c89f0e01490aa2f3eb910f13230e2f178e42f9", file: "9-kēkā-mitātaht.m4a" },
-            { id: 10, english: "Ten", cree: "mitātaht", category: "Numbers", hash: "3110b959ef49aaf0d52bd1601fe972081541939b", file: "10-mitātaht..m4a" },
+            { id: 1, english: "One", cree: "pēyak", category: "Numbers", hash: "main", file: "1 Peyak.m4a" },
+            { id: 2, english: "Two", cree: "nīso", category: "Numbers", hash: "main", file: "2 Niso.m4a" },
+            { id: 3, english: "Three", cree: "nisto", category: "Numbers", hash: "main", file: "3 Nisto.m4a" },
+            { id: 4, english: "Four", cree: "nēwo", category: "Numbers", hash: "main", file: "4 Newo.m4a" },
+            { id: 5, english: "Five", cree: "niyānan", category: "Numbers", hash: "main", file: "5 niyānan.m4a" },
+            { id: 6, english: "Six", cree: "nikotwâsik", category: "Numbers", hash: "main", file: "6 Nikotwâsik.m4a" },
+            { id: 7, english: "Seven", cree: "tēpakohp", category: "Numbers", hash: "main", file: "7-tépakohp.m4a" },
+            { id: 8, english: "Eight", cree: "ayinānēw", category: "Numbers", hash: "main", file: "8-ayinānēw.m4a" },
+            { id: 9, english: "Nine", cree: "kēkā-mitātaht", category: "Numbers", hash: "main", file: "9-kēkā-mitātaht.m4a" },
+            { id: 10, english: "Ten", cree: "mitātaht", category: "Numbers", hash: "main", file: "10-mitātaht..m4a" },
             
             // Expanded Numbers from Booklet Scans
             { id: 801, english: "Eleven", cree: "peyakô-sâp", category: "Numbers" },
@@ -808,75 +1172,548 @@
             { id: 898, english: "Make breakfast", cree: "kîksepamîcisôwin osîhta", category: "Daily Routine" }
         ];
 
+        // Fill out remaining words mapped from LESSONS to Deck for continuity
+        ALLWORDS.forEach((w, i) => {
+            if (!CREE_DATA.find(x => x.cree.toLowerCase() === w.sro.toLowerCase())) {
+                CREE_DATA.push({
+                    id: 1000 + i, english: w.en, cree: w.sro, category: "Trail Vocabulary"
+                });
+            }
+        });
+
         const CATEGORIES = [
             "All", "Greetings", "Numbers", "Birds & Animals", "Values", "Seasons", 
             "Clothing", "Body Parts", "Days of the Week", "Colors", "Tools", 
             "Expressions", "Food", "Time", "Months", "Holidays", "Daily Routine", 
             "Traditional Cooking", "Mother Earth", "Plants", "Insects", "Garden", 
-            "Recreation", "Weather", "Camping", "Verbs", "Misc"
+            "Recreation", "Weather", "Camping", "Verbs", "Misc", "Trail Vocabulary"
         ];
 
-        function updateIcons() {
-            lucide.createIcons();
+        /* =====================================================================
+           APP STATE & NAVIGATION
+        ===================================================================== */
+        const KEY='dailyCree_v1';
+        let store=load();
+        function load(){
+            try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.stars)return s;}catch(e){}
+            return {stars:{},streak:1,lastDay:today(),learned:{}};
         }
+        function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+        function today(){return new Date().toDateString();}
+        (function streak(){
+            if(store.lastDay!==today()){
+                const diff=(new Date(today())-new Date(store.lastDay))/86400000;
+                store.streak=(diff===1)?(store.streak||1)+1:1;
+                store.lastDay=today();save();
+            }
+        })();
 
-        // Play WOTW Audio (using pre-existing TTS fallback)
-        async function playWOTWAudio() {
-            await playTTS("miyo-kîsikâw");
-        }
+        const state={lesson:null,quiz:[],qi:0,right:0,phraseQ:null};
 
-        // Switch application modes
-        function switchMode(mode) {
-            appMode = mode;
-            const wotwTab = document.getElementById('tab-wotw');
-            const localTab = document.getElementById('tab-local');
-            const builderTab = document.getElementById('tab-builder');
-            
-            const wotwView = document.getElementById('wotw-view');
-            const localFilters = document.getElementById('local-filters');
-            const searchInput = document.getElementById('search-input');
-            const emptyState = document.getElementById('empty-state');
-            const gridContainer = document.getElementById('word-grid');
-            const builderView = document.getElementById('builder-view');
-
-            // Reset Search Text on Tab Switch
-            searchTerm = "";
-            searchInput.value = "";
-            emptyState.classList.add('hidden');
-
-            // Tab Styling Constants
-            const activeClass = "px-6 py-3 border-b-2 border-emerald-700 font-bold text-emerald-700 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap bg-white/40 rounded-t-xl";
-            const wotwActiveClass = "px-6 py-3 border-b-2 border-rose-500 font-bold text-rose-600 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap bg-white/40 rounded-t-xl";
-            const inactiveClass = "px-6 py-3 border-b-2 border-transparent font-medium text-neutral-600 hover:text-neutral-800 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap";
-
-            // Reset all tabs
-            wotwTab.className = inactiveClass;
-            localTab.className = inactiveClass;
-            builderTab.className = inactiveClass;
-
+        function switchAppTab(tabId) {
             // Hide all views
-            wotwView.classList.add('hidden');
-            localFilters.classList.add('hidden');
-            builderView.classList.add('hidden');
-            gridContainer.classList.add('hidden');
+            document.querySelectorAll('.app-view').forEach(v => v.classList.remove('active'));
+            // Remove active state from nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Show target
+            document.getElementById(`view-${tabId}`).classList.add('active');
+            document.getElementById(`nav-${tabId}`).classList.add('active');
 
-            if (mode === 'wotw') {
-                wotwTab.className = wotwActiveClass;
-                wotwView.classList.remove('hidden');
-            } else if (mode === 'local') {
-                localTab.className = activeClass;
-                localFilters.classList.remove('hidden');
-                gridContainer.classList.remove('hidden');
+            if (tabId === 'trail') {
+                goTrail('home');
+            } else if (tabId === 'deck') {
+                renderCategories();
                 renderGrid();
-            } else if (mode === 'builder') {
-                builderTab.className = activeClass;
-                builderView.classList.remove('hidden');
+            } else if (tabId === 'builder') {
                 renderBuilderOptions();
                 updateSentence();
             }
         }
 
-        // --- SENTENCE BUILDER LOGIC ---
+        const $ = id => document.getElementById(id);
+
+        /* =====================================================================
+           AUDIO ENGINE (Merged TTS + Raw)
+        ===================================================================== */
+        function deaccent(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+        function itwLink(sro){return 'https://itwewina.altlab.app/search/?q='+encodeURIComponent(sro);}
+
+        function pcmToWav(pcmData, sampleRate = 24000) {
+            const buffer = new ArrayBuffer(44 + pcmData.length);
+            const view = new DataView(buffer);
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+            };
+            writeString(0, 'RIFF');
+            view.setUint32(4, 32 + pcmData.length, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(36, 'data');
+            view.setUint32(40, pcmData.length, true);
+            new Uint8Array(buffer, 44).set(new Uint8Array(pcmData));
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+        async function playTTS(text) {
+            // Cree SRO to phonetic English mapping based on pronunciation guides
+            function sroToPhonetic(word) {
+                let p = word.toLowerCase();
+                // Consonants
+                p = p.replace(/c/g, 'ch');
+                // Long vowels (macrons or circumflexes)
+                p = p.replace(/ê|ē/g, 'ay');
+                p = p.replace(/î|ī/g, 'ee');
+                p = p.replace(/ô|ō/g, 'oh');
+                p = p.replace(/â|ā/g, 'ah');
+                // Short vowels
+                p = p.replace(/a/g, 'uh');
+                p = p.replace(/i/g, 'ih');
+                p = p.replace(/o/g, 'oo');
+                return p;
+            }
+            
+            const phoneticText = sroToPhonetic(text);
+
+            const payload = {
+                contents: [{ parts: [{ text: `Say in a deep, mature, older elder voice clearly at a natural conversational pace: ${phoneticText}` }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Charon" } } }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+
+            try {
+                let response;
+                let retries = 0;
+                while (retries < 3) {
+                    try {
+                        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) break;
+                    } catch (e) {}
+                    retries++;
+                    await new Promise(r => setTimeout(r, Math.pow(2, retries) * 1000));
+                }
+                const result = await response.json();
+                const base64Audio = result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+                if (base64Audio) {
+                    const binaryString = atob(base64Audio);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+                    const audio = new Audio(URL.createObjectURL(pcmToWav(bytes)));
+                    return audio.play();
+                }
+            } catch (e) { console.error("TTS failed", e); }
+        }
+
+        async function playAudioObj(wordObj) {
+            let ttsCleanText = wordObj.cree.replace(/\s*\([^)]+\)/g, '').trim();
+
+            if (!wordObj.hash || !wordObj.file) {
+                await playTTS(ttsCleanText);
+                return;
+            }
+
+            const rawUrl = `https://raw.githubusercontent.com/swampy-spec/audio/${wordObj.hash}/${encodeURIComponent(wordObj.file)}`;
+            try {
+                const audio = new Audio(rawUrl);
+                await new Promise((resolve, reject) => {
+                    audio.oncanplaythrough = resolve;
+                    audio.onerror = reject;
+                    audio.src = rawUrl;
+                    audio.load();
+                    setTimeout(() => reject(new Error("Timeout")), 3000);
+                });
+                await audio.play();
+            } catch (err) {
+                console.warn(`Original clip not reachable. Using AI fallback.`);
+                await playTTS(ttsCleanText);
+            }
+        }
+
+        // Wrapper for Trail UI strings
+        function playWord(sro) {
+            const match = CREE_DATA.find(w => w.cree.toLowerCase() === sro.toLowerCase());
+            if(match) {
+                playAudioObj(match);
+            } else {
+                playTTS(sro);
+            }
+        }
+
+        /* =====================================================================
+           THE TRAIL ENGINE (App 2 UI)
+        ===================================================================== */
+        function goTrail(scr){
+            document.querySelectorAll('#view-trail .screen').forEach(s=>s.classList.remove('on'));
+            $('scr-'+scr).classList.add('on');
+            if(scr==='home')renderHome();
+        }
+        function starsOf(id){return store.stars[id]||0;}
+        function lessonDone(id){return starsOf(id)>0;}
+        function unlocked(i){return i===0||lessonDone(LESSONS[i-1].id);}
+
+        function renderHome(){
+            const t=$('trail');t.innerHTML='';
+            LESSONS.forEach((l,i)=>{
+                const open=unlocked(i),st=starsOf(l.id);
+                const b=document.createElement('button');
+                b.className='camp'+(open?'':' locked')+(st?' done':'');
+                b.innerHTML=`<span class="glyph">${open?l.glyph:'🔒'}</span>
+                  <span class="meta"><span class="ttl">${i+1}. ${l.title}<span class="syl">${l.syl}</span></span>
+                  <span class="sub">${l.words.length} words · ${l.desc}</span></span>
+                  <span class="stars">${st? '★'.repeat(st)+'☆'.repeat(3-st) : (open?'start ›':'')}</span>`;
+                if(open)b.onclick=()=>openLesson(l.id);
+                t.appendChild(b);
+            });
+            const learned=Object.keys(store.learned).length;
+            $('wordPill').textContent=learned+(learned===1?' word':' words');
+            $('streakPill').textContent='☀ day '+(store.streak||1);
+            const nPh=PHRASES.filter(p=>p.needs.every(lessonDone)).length;
+            $('phraseCount').textContent=nPh? nPh+' open ›':'›';
+            
+            const doneCt=LESSONS.filter(l=>lessonDone(l.id)).length;
+            const pct=doneCt/LESSONS.length;
+            $('sun').style.bottom=(-10+pct*120)+'px';
+            $('sky').classList.toggle('day',pct>=.6);
+        }
+
+        function openLesson(id){
+            state.lesson=id;
+            const l=LESSONS.find(x=>x.id===id);
+            $('lsnTitle').innerHTML=l.title+' <span class="syl">'+l.syl+'</span>';
+            $('lsnDesc').textContent=l.desc;
+            const c=$('lsnCards');c.innerHTML='';
+            l.words.forEach(w=>{
+                const d=document.createElement('div');d.className='wcard';
+                d.innerHTML=`<div class="pic">${w.pic}</div>
+                  <div class="sylword">${w.syl}</div>
+                  <div class="sro">${w.sro}</div>
+                  <div class="eng">${w.en}</div>
+                  <div class="row">
+                    <button class="playb" onclick="playWord('${w.sro.replace(/'/g,"\\'")}')"><i data-lucide="volume-2" size="16"></i> Hear it</button>
+                    <a class="dictlink" href="${itwLink(w.sro)}" target="_blank" rel="noopener">itwêwina ↗</a>
+                  </div>`;
+                c.appendChild(d);
+            });
+            updateIcons();
+            goTrail('lesson');
+        }
+
+        function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+        function pickOthers(word,n){
+            const pool=shuffle(ALLWORDS.filter(w=>w.sro!==word.sro));
+            return pool.slice(0,n);
+        }
+
+        function startQuiz(){
+            const l=LESSONS.find(x=>x.id===state.lesson);
+            const ws=shuffle(l.words);
+            const qs=[];
+            ws.forEach((w,i)=>{
+                qs.push({type:['c2e','e2c','syl'][i%3],w});
+            });
+            const reach=new Set(l.words.map(w=>w.sro));
+            const ph=PHRASES.filter(p=>p.order.every(s=>reach.has(s)));
+            if(ph.length)qs.push({type:'build',p:ph[Math.floor(Math.random()*ph.length)]});
+            state.quiz=qs;state.qi=0;state.right=0;
+            goTrail('quiz');renderQ();
+        }
+
+        function renderQ(){
+            const q=state.quiz[state.qi];
+            $('qfill').style.width=(state.qi/state.quiz.length*100)+'%';
+            $('qfeed').innerHTML='';
+            const card=$('qcard');
+            if(q.type==='build'){renderBuild(q);return;}
+            const w=q.w;
+            let head='',opts=[],render;
+            if(q.type==='c2e'){
+                head=`<div class="qkind">Cree → English</div>
+                  <div class="qword syl">${w.syl}</div><div class="qsro">${w.sro}</div>
+                  <button class="playb qplay" onclick="playWord('${w.sro.replace(/'/g,"\\'")}')"><i data-lucide="volume-2" size="16"></i></button>
+                  <p class="qprompt">What does it mean?</p>`;
+                opts=shuffle([w,...pickOthers(w,3)]);
+                render=o=>o.en;
+            }else if(q.type==='e2c'){
+                head=`<div class="qkind">English → Cree</div>
+                  <div class="qword">“${w.en}”</div>
+                  <p class="qprompt">Choose the Cree word.</p>`;
+                opts=shuffle([w,...pickOthers(w,3)]);
+                render=o=>`<span class="syl">${o.syl}</span> ${o.sro}`;
+            }else{
+                head=`<div class="qkind">Read the syllabics</div>
+                  <div class="qword syl">${w.syl}</div>
+                  <p class="qprompt">Which word is this?</p>`;
+                opts=shuffle([w,...pickOthers(w,3)]);
+                render=o=>o.sro;
+            }
+            card.innerHTML=head+'<div class="opts">'+
+              opts.map((o,i)=>`<button class="opt" data-i="${i}">${render(o)}</button>`).join('')+'</div>';
+            card.querySelectorAll('.opt').forEach((b,i)=>{
+                b.onclick=()=>answer(b,opts[i].sro===w.sro,w);
+            });
+            updateIcons();
+        }
+
+        function answer(btn,ok,w){
+            document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+            btn.classList.add(ok?'correct':'wrong');
+            if(!ok){
+                document.querySelectorAll('.opt').forEach(b=>{
+                    if(b.textContent.includes(w.sro)||b.textContent===w.en)b.classList.add('correct');
+                });
+            }
+            const praise=shuffle(['miywâsin! ᒥᔼᓯᐣ','tâpwê! ᑖᐻ','mâmaskâc! ᒫᒪᐢᑳᐨ','êkosi! ᐁᑯᓯ'])[0];
+            $('qfeed').innerHTML= ok
+              ? `<div class="yes">✓ ${praise}</div>`
+              : `<div class="no">✗ It's <strong>${w.sro}</strong> — “${w.en}”</div><div class="note">Verify on <a href="${itwLink(w.sro)}" target="_blank" rel="noopener">itwêwina ↗</a></div>`;
+            if(ok){state.right++;store.learned[w.sro]=true;save();}
+            setTimeout(next, ok?900:2100);
+        }
+
+        function renderBuild(q){
+            state.phraseQ={picked:[],p:q.p};
+            const p=q.p;
+            $('qcard').innerHTML=`<div class="qkind">Build the phrase</div>
+              <div class="qword" style="font-size:1.3rem">“${p.en}”</div>
+              <p class="qprompt">Tap the Cree words in order.</p>
+              <div class="slots" id="slots"></div>
+              <div class="tilebank" id="bank"></div>`;
+            const bank=$('bank');
+            shuffle(p.order).forEach(sro=>{
+                const w=wordBy[sro];const t=document.createElement('button');
+                t.className='tile';t.innerHTML=`${sro}<span class="syl">${w?w.syl:''}</span>`;
+                t.onclick=()=>{
+                    if(t.classList.contains('used'))return;
+                    t.classList.add('used');
+                    state.phraseQ.picked.push(sro);
+                    const s=document.createElement('button');
+                    s.className='tile';s.innerHTML=t.innerHTML;
+                    s.onclick=()=>{
+                        const idx=state.phraseQ.picked.lastIndexOf(sro);
+                        if(idx>-1)state.phraseQ.picked.splice(idx,1);
+                        s.remove();t.classList.remove('used');
+                    };
+                    $('slots').appendChild(s);
+                    if(state.phraseQ.picked.length===p.order.length)checkBuild();
+                };
+                bank.appendChild(t);
+            });
+        }
+
+        function checkBuild(){
+            const {picked,p}=state.phraseQ;
+            const ok=picked.join(' ')===p.order.join(' ');
+            document.querySelectorAll('.tile').forEach(t=>t.disabled=true);
+            $('qfeed').innerHTML= ok
+              ? `<div class="yes">✓ ${p.cr} <span class="syl">${p.syl}</span></div>`
+              : `<div class="no">✗ The order is: <strong>${p.cr}</strong></div><div class="note">${p.syl} — “${p.en}”</div>`;
+            if(ok)state.right++;
+            setTimeout(next, ok?1300:2600);
+        }
+
+        function next(){
+            state.qi++;
+            if(state.qi<state.quiz.length){renderQ();return;}
+            finishQuiz();
+        }
+
+        function finishQuiz(){
+            const total=state.quiz.length;
+            const pct=state.right/total;
+            const stars=pct>=.95?3:pct>=.7?2:pct>=.4?1:1;
+            const prev=starsOf(state.lesson);
+            if(stars>prev){store.stars[state.lesson]=stars;save();}
+            $('doneStars').textContent='★'.repeat(stars)+'☆'.repeat(3-stars);
+            const unlockedPh=PHRASES.filter(p=>p.needs.every(lessonDone)).length;
+            $('doneMsg').textContent=`You got ${state.right} of ${total}. ${unlockedPh} phrase${unlockedPh===1?'':'s'} now open in the Phrase Lab.`;
+            goTrail('done');
+            renderHome();
+        }
+
+        function renderPhrases(){
+            const box=$('phraseList');box.innerHTML='';
+            PHRASES.forEach(p=>{
+                const open=p.needs.every(lessonDone);
+                const d=document.createElement('div');
+                d.className='phrase'+(open?'':' lock');
+                const lessonNames=p.needs.map(id=>LESSONS.find(l=>l.id===id).title).join(' + ');
+                d.innerHTML= open
+                  ? `<div class="cr">${p.cr}<span class="syl">${p.syl}</span></div>
+                     <div class="en">${p.en}</div>
+                     <div class="row" style="margin-top:8px;display:flex;gap:10px;align-items:center">
+                       <button class="playb" onclick="playWord('${p.order[0].replace(/'/g,"\\'")}')"><i data-lucide="volume-2" size="16"></i> audio</button>
+                     </div>`
+                  : `<div class="cr">🔒 ${p.en}</div><div class="from">finish: ${lessonNames}</div>`;
+                box.appendChild(d);
+            });
+            updateIcons();
+        }
+        $('phraseLabBtn').onclick=()=>{renderPhrases();goTrail('phrases');};
+
+
+        /* =====================================================================
+           STUDY DECK ENGINE (App 1)
+        ===================================================================== */
+        let searchTerm = "";
+        let activeCategory = "Greetings"; 
+
+        function renderCategories() {
+            const container = document.getElementById('categories-bar');
+            container.innerHTML = CATEGORIES.map(cat => `
+                <button 
+                    onclick="setCategory('${cat}')"
+                    class="px-4 py-2 rounded-xl whitespace-nowrap text-sm font-bold transition-all outline-none border-2 ${
+                        activeCategory === cat 
+                        ? 'shadow-md transform scale-105' 
+                        : 'bg-white hover:bg-neutral-50 hover:shadow-sm'
+                    }"
+                    style="${activeCategory === cat ? 'background: var(--soil); color: var(--birch); border-color: var(--soil);' : 'color: var(--night); border-color: var(--line);'}"
+                >
+                    ${cat}
+                </button>
+            `).join('');
+        }
+
+        function generateCardHTML(word) {
+            return `
+                <div 
+                    id="card-${word.id}"
+                    class="card relative h-56 w-full cursor-pointer perspective-1000"
+                    onclick="handleCardClick(this, ${word.id})"
+                >
+                    <div class="card-inner relative w-full h-full preserve-3d">
+                        <!-- Front side (English) -->
+                        <div class="absolute inset-0 bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm flex flex-col items-center justify-center border border-neutral-200 backface-hidden p-4 hover:border-neutral-300 transition-colors">
+                            <span class="text-[10px] uppercase tracking-widest font-bold mb-2 px-2 py-1 rounded" style="color: var(--river-deep); background: rgba(63, 125, 140, 0.1);">
+                                ${word.category}
+                            </span>
+                            <h2 class="text-xl font-semibold text-neutral-800 text-center line-clamp-3">${word.english}</h2>
+                            ${word.asset ? `<img src="${word.asset}" class="asset-img" alt="${word.english}">` : ''}
+                        </div>
+
+                        <!-- Back side (Cree) -->
+                        <div class="absolute inset-0 rounded-2xl shadow-md flex flex-col items-center justify-center border rotate-y-180 backface-hidden text-white p-4" style="background: var(--soil); border-color: var(--night);">
+                            <span class="text-[10px] uppercase tracking-widest opacity-70 font-bold mb-2">nêhiyawêwin</span>
+                            <h2 class="text-2xl font-bold mb-4 text-center leading-tight break-all syl">${word.cree}</h2>
+                            
+                            <div class="flex items-center gap-2">
+                                <div class="bg-white/20 p-2 rounded-full">
+                                    <div class="audio-spinner hidden animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                                    <div class="audio-icon">
+                                        <i data-lucide="volume-2" size="20"></i>
+                                    </div>
+                                </div>
+                                
+                                <button onclick="openPracticeModal(event, ${word.id})" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors" title="Speech Analysis Lab">
+                                    <i data-lucide="mic" size="14"></i> Lab
+                                </button>
+                                
+                                <a 
+                                    href="${itwLink(word.cree)}" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    onclick="event.stopPropagation()"
+                                    class="p-2 bg-white/10 rounded-full hover:bg-white/20 flex items-center gap-1 text-xs"
+                                    title="Verify on itwêwina"
+                                >
+                                    <i data-lucide="external-link" size="14"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGrid() {
+            const container = document.getElementById('word-grid');
+            const emptyState = document.getElementById('empty-state');
+            
+            let dataset = CREE_DATA.filter(word => {
+                const matchesSearch = word.english.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                     word.cree.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesCategory = activeCategory === "All" || word.category === activeCategory;
+                return matchesSearch && matchesCategory;
+            });
+
+            if (dataset.length === 0) {
+                container.innerHTML = "";
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                if (activeCategory === "All" && searchTerm === "") {
+                    let html = "";
+                    CATEGORIES.forEach(cat => {
+                        if (cat === "All") return;
+                        const catWords = dataset.filter(w => w.category === cat);
+                        if (catWords.length > 0) {
+                            html += `<div class="col-span-full mt-6 mb-2 border-b pb-2 flex items-center gap-2" style="border-color: var(--line);">
+                                        <div class="w-2 h-6 rounded-full" style="background: var(--gold);"></div>
+                                        <h2 class="text-xl font-bold" style="color: var(--night);">${cat}</h2>
+                                     </div>`;
+                            html += catWords.map(word => generateCardHTML(word)).join('');
+                        }
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = dataset.map(word => generateCardHTML(word)).join('');
+                }
+                updateIcons();
+            }
+        }
+
+        window.setCategory = (cat) => {
+            activeCategory = cat;
+            renderCategories();
+            renderGrid();
+        };
+
+        window.handleCardClick = async (element, id) => {
+            const isFlipped = element.classList.contains('flipped');
+            if (!isFlipped) {
+                const word = CREE_DATA.find(w => w.id === id);
+                if (word) {
+                    const spinner = element.querySelector('.audio-spinner');
+                    const icon = element.querySelector('.audio-icon');
+                    spinner.classList.remove('hidden');
+                    icon.classList.add('hidden');
+                    
+                    await playAudioObj(word);
+                    
+                    spinner.classList.add('hidden');
+                    icon.classList.remove('hidden');
+                }
+            }
+            element.classList.toggle('flipped');
+        };
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            if (searchTerm.trim() !== "" && activeCategory !== "All") {
+                activeCategory = "All";
+                renderCategories();
+            }
+            renderGrid();
+        });
+
+        /* =====================================================================
+           SENTENCE BUILDER ENGINE (App 1)
+        ===================================================================== */
         function renderBuilderOptions() {
             const colPro = document.getElementById('col-pronouns');
             const colPre = document.getElementById('col-preverbs');
@@ -884,25 +1721,25 @@
 
             colPro.innerHTML = PRONOUNS.map(p => `
                 <button onclick="updateBuilderSelection('pronoun', '${p.id}')" 
-                    class="builder-btn w-full text-left px-4 py-3 rounded-xl border border-neutral-200 hover:border-emerald-500 bg-white/60 shadow-sm transition-all ${builderState.pronoun.id === p.id ? 'selected' : ''}">
-                    <span class="font-bold block text-neutral-800">${p.cree}</span>
-                    <span class="text-xs text-neutral-500 block">${p.english}</span>
+                    class="builder-btn w-full text-left px-4 py-3 rounded-xl border transition-all ${builderState.pronoun.id === p.id ? 'selected' : 'bg-white border-neutral-200'}">
+                    <span class="font-bold block syl">${p.cree}</span>
+                    <span class="text-xs block opacity-70">${p.english}</span>
                 </button>
             `).join('');
 
             colPre.innerHTML = PREVERBS.map(p => `
                 <button onclick="updateBuilderSelection('preverb', '${p.id}')" 
-                    class="builder-btn w-full text-left px-4 py-3 rounded-xl border border-neutral-200 hover:border-emerald-500 bg-white/60 shadow-sm transition-all ${builderState.preverb.id === p.id ? 'selected' : ''}">
-                    <span class="font-bold block text-neutral-800">${p.cree || '(None)'}</span>
-                    <span class="text-xs text-neutral-500 block">${p.english || 'No preverb'}</span>
+                    class="builder-btn w-full text-left px-4 py-3 rounded-xl border transition-all ${builderState.preverb.id === p.id ? 'selected' : 'bg-white border-neutral-200'}">
+                    <span class="font-bold block syl">${p.cree || '(None)'}</span>
+                    <span class="text-xs block opacity-70">${p.english || 'No preverb'}</span>
                 </button>
             `).join('');
 
             colVerb.innerHTML = VERBS_VAI.map(v => `
                 <button onclick="updateBuilderSelection('verb', '${v.id}')" 
-                    class="builder-btn w-full text-left px-4 py-3 rounded-xl border border-neutral-200 hover:border-emerald-500 bg-white/60 shadow-sm transition-all ${builderState.verb.id === v.id ? 'selected' : ''}">
-                    <span class="font-bold block text-neutral-800">${v.cree}</span>
-                    <span class="text-xs text-neutral-500 block">${v.english}</span>
+                    class="builder-btn w-full text-left px-4 py-3 rounded-xl border transition-all ${builderState.verb.id === v.id ? 'selected' : 'bg-white border-neutral-200'}">
+                    <span class="font-bold block syl">${v.cree}</span>
+                    <span class="text-xs block opacity-70">${v.english}</span>
                 </button>
             `).join('');
         }
@@ -911,7 +1748,6 @@
             if (type === 'pronoun') builderState.pronoun = PRONOUNS.find(x => x.id === id);
             if (type === 'preverb') builderState.preverb = PREVERBS.find(x => x.id === id);
             if (type === 'verb') builderState.verb = VERBS_VAI.find(x => x.id === id);
-            
             renderBuilderOptions();
             updateSentence();
         }
@@ -988,113 +1824,38 @@
             await playTTS(rawText);
         }
 
-        function pcmToWav(pcmData, sampleRate = 24000) {
-            const buffer = new ArrayBuffer(44 + pcmData.length);
-            const view = new DataView(buffer);
-            const writeString = (offset, string) => {
-                for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
-            };
-            writeString(0, 'RIFF');
-            view.setUint32(4, 32 + pcmData.length, true);
-            writeString(8, 'WAVE');
-            writeString(12, 'fmt ');
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true);
-            view.setUint16(22, 1, true);
-            view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * 2, true);
-            view.setUint16(32, 2, true);
-            view.setUint16(34, 16, true);
-            writeString(36, 'data');
-            view.setUint32(40, pcmData.length, true);
-            new Uint8Array(buffer, 44).set(new Uint8Array(pcmData));
-            return new Blob([buffer], { type: 'audio/wav' });
+        /* =====================================================================
+           PRONUNCIATION LAB & WOTW (App 1)
+        ===================================================================== */
+        async function playWOTWAudio() {
+            await playTTS("miyo-kîsikâw");
         }
-
-        async function playTTS(text) {
-            const payload = {
-                contents: [{ parts: [{ text: `Say in a mature, older voice clearly in Cree: ${text}` }] }],
-                generationConfig: {
-                    responseModalities: ["AUDIO"],
-                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Gacrux" } } }
-                },
-                model: "gemini-2.5-flash-preview-tts"
-            };
-
-            try {
-                let response;
-                let retries = 0;
-                while (retries < 5) {
-                    try {
-                        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        if (response.ok) break;
-                    } catch (e) {}
-                    retries++;
-                    await new Promise(r => setTimeout(r, Math.pow(2, retries) * 1000));
-                }
-                const result = await response.json();
-                const base64Audio = result.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-                if (base64Audio) {
-                    const binaryString = atob(base64Audio);
-                    const bytes = new Uint8Array(binaryString.length);
-                    for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-                    const audio = new Audio(URL.createObjectURL(pcmToWav(bytes)));
-                    return audio.play();
-                }
-            } catch (e) { console.error("TTS Fallback failed", e); }
-        }
-
-        async function playAudio(word) {
-            const cardElement = document.getElementById(`card-${word.id}`);
-            const spinner = cardElement.querySelector('.audio-spinner');
-            const icon = cardElement.querySelector('.audio-icon');
-            
-            spinner.classList.remove('hidden');
-            icon.classList.add('hidden');
-
-            let ttsCleanText = word.cree.replace(/\s*\([^)]+\)/g, '').trim();
-
-            if (!word.hash || !word.file) {
-                await playTTS(ttsCleanText);
-                spinner.classList.add('hidden');
-                icon.classList.remove('hidden');
-                return;
-            }
-
-            const rawUrl = `https://raw.githubusercontent.com/swampy-spec/audio/${word.hash}/${encodeURIComponent(word.file)}`;
-            
-            try {
-                const audio = new Audio(rawUrl);
-                await new Promise((resolve, reject) => {
-                    audio.oncanplaythrough = resolve;
-                    audio.onerror = () => reject(new Error("File not found"));
-                    audio.src = rawUrl;
-                    audio.load();
-                    setTimeout(() => reject(new Error("Timeout")), 3000);
-                });
-                await audio.play();
-            } catch (err) {
-                console.warn(`Original clip not reachable. Using AI fallback.`);
-                await playTTS(ttsCleanText);
-            } finally {
-                spinner.classList.add('hidden');
-                icon.classList.remove('hidden');
-            }
-        }
-
-        // --- PRONUNCIATION LAB RECORDING CORE ---
         
-        function openPracticeModal(event, id) {
-            event.stopPropagation(); 
+        let currentPracticeWord = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordTimerInterval = null;
+        let recordSeconds = 0;
+        let localStream = null;
+
+        function openPracticeModalFromWOTW() {
+            openPracticeModal(event, null, {
+                cree: "miyo-kîsikâw",
+                english: "It is a good day",
+                category: "Word of the Week"
+            });
+        }
+
+        function openPracticeModal(event, id, customObj = null) {
+            if(event) event.stopPropagation(); 
             
-            currentPracticeWord = CREE_DATA.find(w => w.id === id);
+            if (customObj) {
+                currentPracticeWord = customObj;
+            } else {
+                currentPracticeWord = CREE_DATA.find(w => w.id === id);
+            }
 
             if (!currentPracticeWord) return;
-
             resetPracticeState();
 
             document.getElementById('modal-cree-word').textContent = currentPracticeWord.cree;
@@ -1119,9 +1880,7 @@
         }
 
         function closePracticeModal() {
-            if (mediaRecorder && mediaRecorder.state === 'recording') {
-                stopRecording();
-            }
+            if (mediaRecorder && mediaRecorder.state === 'recording') stopRecording();
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
                 localStream = null;
@@ -1136,7 +1895,10 @@
             document.getElementById('record-timer').textContent = "00:00";
             
             const micBtn = document.getElementById('mic-practice-btn');
-            micBtn.className = "w-20 h-20 bg-emerald-100 hover:bg-emerald-200 border-4 border-emerald-500 rounded-full flex items-center justify-center text-emerald-700 transition-all cursor-pointer relative";
+            micBtn.style.background = "var(--birch)";
+            micBtn.style.color = "var(--soil)";
+            micBtn.style.borderColor = "var(--sage)";
+            micBtn.classList.remove('animate-pulse');
             micBtn.innerHTML = `<i data-lucide="mic" size="32"></i>`;
             
             document.getElementById('record-instructions').textContent = "Tap to start recording";
@@ -1151,15 +1913,8 @@
         async function playTargetWordReference() {
             if (!currentPracticeWord) return;
             let cleanRefText = currentPracticeWord.cree.replace(/\s*\([^)]+\)/g, '').trim();
-            
             if (currentPracticeWord.hash && currentPracticeWord.file) {
-                const rawUrl = `https://raw.githubusercontent.com/swampy-spec/audio/${currentPracticeWord.hash}/${encodeURIComponent(currentPracticeWord.file)}`;
-                try {
-                    const audio = new Audio(rawUrl);
-                    await audio.play();
-                } catch (e) {
-                    await playTTS(cleanRefText);
-                }
+                await playAudioObj(currentPracticeWord);
             } else {
                 await playTTS(cleanRefText);
             }
@@ -1182,9 +1937,7 @@
                 mediaRecorder = new MediaRecorder(localStream);
                 
                 mediaRecorder.ondataavailable = e => {
-                    if (e.data.size > 0) {
-                        audioChunks.push(e.data);
-                    }
+                    if (e.data.size > 0) audioChunks.push(e.data);
                 };
                 
                 mediaRecorder.onstop = async () => {
@@ -1192,24 +1945,22 @@
                         localStream.getTracks().forEach(track => track.stop());
                         localStream = null;
                     }
-                    
                     const mimeType = mediaRecorder.mimeType || 'audio/webm';
                     const audioBlob = new Blob(audioChunks, { type: mimeType });
-                    
                     const audioUrl = URL.createObjectURL(audioBlob);
-                    const playbackAudio = new Audio(audioUrl);
-                    playbackAudio.play();
+                    new Audio(audioUrl).play();
                     
                     document.getElementById('record-instructions').textContent = "Repeating your voice...";
-                    
                     await analyzeSpeechPronunciation(audioBlob);
                 };
                 
                 mediaRecorder.start();
-                
                 document.getElementById('record-instructions').textContent = "Recording... Tap to stop";
                 const micBtn = document.getElementById('mic-practice-btn');
-                micBtn.className = "w-20 h-20 bg-red-100 hover:bg-red-200 border-4 border-red-500 rounded-full flex items-center justify-center text-red-600 transition-all cursor-pointer animate-pulse relative";
+                micBtn.style.background = "#fee2e2";
+                micBtn.style.color = "#dc2626";
+                micBtn.style.borderColor = "#ef4444";
+                micBtn.classList.add('animate-pulse');
                 micBtn.innerHTML = `<i data-lucide="square" size="28"></i>`;
                 updateIcons();
                 
@@ -1218,15 +1969,10 @@
                     const mins = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
                     const secs = String(recordSeconds % 60).padStart(2, '0');
                     document.getElementById('record-timer').textContent = `${mins}:${secs}`;
-                    
-                    if (recordSeconds >= 12) { 
-                        stopRecording();
-                    }
+                    if (recordSeconds >= 12) stopRecording();
                 }, 1000);
-                
             } catch (err) {
-                console.error(err);
-                document.getElementById('record-instructions').innerHTML = `<span class="text-red-600 font-medium">Microphone access was denied or unsupported.</span>`;
+                document.getElementById('record-instructions').innerHTML = `<span class="text-red-600 font-medium">Microphone access denied.</span>`;
             }
         }
 
@@ -1234,9 +1980,11 @@
             if (mediaRecorder && mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
                 clearInterval(recordTimerInterval);
-                
                 const micBtn = document.getElementById('mic-practice-btn');
-                micBtn.className = "w-20 h-20 bg-emerald-100 hover:bg-emerald-200 border-4 border-emerald-500 rounded-full flex items-center justify-center text-emerald-700 transition-all cursor-pointer relative";
+                micBtn.style.background = "var(--birch)";
+                micBtn.style.color = "var(--soil)";
+                micBtn.style.borderColor = "var(--sage)";
+                micBtn.classList.remove('animate-pulse');
                 micBtn.innerHTML = `<i data-lucide="mic" size="32"></i>`;
                 updateIcons();
             }
@@ -1249,31 +1997,6 @@
                 reader.onerror = reject;
                 reader.readAsDataURL(blob);
             });
-        }
-
-        async function fetchGeminiAnalysisWithBackoff(payload) {
-            let retries = 0;
-            const maxRetries = 5;
-            while (retries < maxRetries) {
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (response.ok) {
-                        const result = await response.json();
-                        const textResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                        if (textResponse) {
-                            return JSON.parse(textResponse);
-                        }
-                    }
-                } catch (e) {
-                }
-                retries++;
-                await new Promise(r => setTimeout(r, Math.pow(2, retries) * 1000));
-            }
-            throw new Error("Timeout/retries failed.");
         }
 
         async function analyzeSpeechPronunciation(audioBlob) {
@@ -1315,192 +2038,58 @@
                     }
                 };
 
-                const data = await fetchGeminiAnalysisWithBackoff(payload);
+                let response, retries = 0;
+                while (retries < 3) {
+                    try {
+                        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) break;
+                    } catch (e) {}
+                    retries++;
+                    await new Promise(r => setTimeout(r, Math.pow(2, retries) * 1000));
+                }
+                
+                const result = await response.json();
+                const data = JSON.parse(result.candidates[0].content.parts[0].text);
                 
                 loading.classList.add('hidden');
                 
                 const score = data.score || 0;
-                const feedbackText = data.feedback || "Great attempt! Keep practicing.";
-                
+                document.getElementById('analysis-score').textContent = `${score}%`;
+                document.getElementById('analysis-feedback').textContent = data.feedback || "Great attempt!";
+
                 const scoreBadge = document.getElementById('score-gauge-container');
-                const scoreLabel = document.getElementById('analysis-score');
-                const feedbackLabel = document.getElementById('analysis-feedback');
-
-                scoreLabel.textContent = `${score}%`;
-                feedbackLabel.textContent = feedbackText;
-
                 if (score >= 85) {
-                    scoreBadge.className = "relative flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 border-4 border-emerald-500 text-emerald-800 font-bold text-2xl shrink-0";
+                    scoreBadge.style.borderColor = "var(--good)";
+                    scoreBadge.style.color = "var(--good)";
                 } else if (score >= 60) {
-                    scoreBadge.className = "relative flex items-center justify-center w-20 h-20 rounded-full bg-amber-100 border-4 border-amber-500 text-amber-800 font-bold text-2xl shrink-0";
+                    scoreBadge.style.borderColor = "var(--gold-deep)";
+                    scoreBadge.style.color = "var(--gold-deep)";
                 } else {
-                    scoreBadge.className = "relative flex items-center justify-center w-20 h-20 rounded-full bg-red-100 border-4 border-red-500 text-red-800 font-bold text-2xl shrink-0";
+                    scoreBadge.style.borderColor = "var(--bad)";
+                    scoreBadge.style.color = "var(--bad)";
                 }
 
                 success.classList.remove('hidden');
                 document.getElementById('record-instructions').textContent = "Tap mic to try again!";
                 updateIcons();
-
             } catch (err) {
-                console.error("Speech analysis failed:", err);
                 loading.classList.add('hidden');
-                errorDesc.textContent = "AI Speech processing is currently busy. Try recording again.";
+                errorDesc.textContent = "AI processing failed. Try recording again.";
                 error.classList.remove('hidden');
             }
         }
 
-        // --- RENDER GRID ENGINE ---
+        // Setup Icons
+        function updateIcons() { lucide.createIcons(); }
 
-        function renderCategories() {
-            const container = document.getElementById('categories-bar');
-            container.innerHTML = CATEGORIES.map(cat => `
-                <button 
-                    onclick="setCategory('${cat}')"
-                    class="px-4 py-2 rounded-xl whitespace-nowrap text-sm font-bold transition-all outline-none border-2 ${
-                        activeCategory === cat 
-                        ? 'bg-emerald-800 text-white border-emerald-800 shadow-md transform scale-105' 
-                        : 'bg-white text-emerald-800 border-emerald-100 hover:bg-emerald-50 hover:border-emerald-300 hover:shadow-sm'
-                    }"
-                >
-                    ${cat}
-                </button>
-            `).join('');
-        }
-
-        function generateCardHTML(word) {
-            return `
-                <div 
-                    id="card-${word.id}"
-                    class="card relative h-56 w-full cursor-pointer perspective-1000"
-                    onclick="handleCardClick(this, ${word.id})"
-                >
-                    <div class="card-inner relative w-full h-full preserve-3d">
-                        <!-- Front side (English) -->
-                        <div class="absolute inset-0 bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm flex flex-col items-center justify-center border border-neutral-200 backface-hidden p-4 hover:border-emerald-200 transition-colors">
-                            <span class="text-[10px] uppercase tracking-widest text-emerald-600 font-bold mb-2 bg-emerald-50 px-2 py-1 rounded">
-                                ${word.category}
-                            </span>
-                            <h2 class="text-xl font-semibold text-neutral-800 text-center line-clamp-3">${word.english}</h2>
-                            ${word.asset ? `<img src="${word.asset}" class="asset-img" alt="${word.english}">` : ''}
-                        </div>
-
-                        <!-- Back side (Cree) -->
-                        <div class="absolute inset-0 bg-emerald-800 rounded-2xl shadow-md flex flex-col items-center justify-center border border-emerald-900 rotate-y-180 backface-hidden text-white p-4">
-                            <span class="text-[10px] uppercase tracking-widest opacity-70 font-bold mb-2">nêhiyawêwin</span>
-                            <h2 class="text-2xl font-bold mb-4 text-center leading-tight break-all">${word.cree}</h2>
-                            
-                            <div class="flex items-center gap-2">
-                                <div class="bg-white/20 p-2 rounded-full">
-                                    <div class="audio-spinner hidden animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                                    <div class="audio-icon">
-                                        <i data-lucide="volume-2" size="20"></i>
-                                    </div>
-                                </div>
-                                
-                                <button onclick="openPracticeModal(event, ${word.id})" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors" title="Speech Analysis Lab">
-                                    <i data-lucide="mic" size="14"></i> Speak
-                                </button>
-
-                                ${word.hash ? `
-                                    <a 
-                                        href="https://github.com/swampy-spec/audio/commit/${word.hash}" 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        onclick="event.stopPropagation()"
-                                        class="p-2 bg-white/10 rounded-full hover:bg-white/20"
-                                        title="View in Repository"
-                                    >
-                                        <i data-lucide="external-link" size="14"></i>
-                                    </a>
-                                ` : `
-                                    <div class="p-2 bg-white/10 rounded-full" title="AI Audio Generated">
-                                        <i data-lucide="sparkles" size="14"></i>
-                                    </div>
-                                `}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderGrid() {
-            const container = document.getElementById('word-grid');
-            const emptyState = document.getElementById('empty-state');
-            const emptyText = emptyState.querySelector('p');
-            
-            let dataset = CREE_DATA.filter(word => {
-                const matchesSearch = word.english.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                     word.cree.toLowerCase().includes(searchTerm.toLowerCase());
-                const matchesCategory = activeCategory === "All" || word.category === activeCategory;
-                return matchesSearch && matchesCategory;
-            });
-
-            if (dataset.length === 0) {
-                container.innerHTML = "";
-                emptyText.textContent = "No results found.";
-                emptyState.classList.remove('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                
-                if (activeCategory === "All" && searchTerm === "") {
-                    let html = "";
-                    CATEGORIES.forEach(cat => {
-                        if (cat === "All") return;
-                        const catWords = dataset.filter(w => w.category === cat);
-                        if (catWords.length > 0) {
-                            html += `<div class="col-span-full mt-6 mb-2 border-b-2 border-emerald-200/50 pb-2 flex items-center gap-2">
-                                        <div class="w-2 h-6 bg-emerald-500 rounded-full"></div>
-                                        <h2 class="text-xl font-bold text-emerald-900">${cat}</h2>
-                                        <span class="text-xs text-neutral-400 font-bold bg-white/80 px-2 py-0.5 rounded-full shadow-sm border border-neutral-200">${catWords.length}</span>
-                                     </div>`;
-                            html += catWords.map(word => generateCardHTML(word)).join('');
-                        }
-                    });
-                    container.innerHTML = html;
-                } else {
-                    container.innerHTML = dataset.map(word => generateCardHTML(word)).join('');
-                }
-                updateIcons();
-            }
-        }
-
-        window.setCategory = (cat) => {
-            activeCategory = cat;
-            renderCategories();
-            renderGrid();
-        };
-
-        window.handleCardClick = (element, id) => {
-            const isFlipped = element.classList.contains('flipped');
-            if (!isFlipped) {
-                const word = CREE_DATA.find(w => w.id === id);
-                if (word) playAudio(word);
-            }
-            element.classList.toggle('flipped');
-        };
-
-        // Input search listener
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            searchTerm = e.target.value;
-            
-            // Automatically switch to 'All' category if user is searching for a specific word
-            if (searchTerm.trim() !== "" && activeCategory !== "All") {
-                activeCategory = "All";
-                renderCategories();
-            }
-
-            if (appMode !== 'local') {
-                switchMode('local');
-            } else {
-                renderGrid();
-            }
-        });
-
-        // Initial Boot sets Word of the Week as default
+        // Start App
         window.onload = () => {
-            renderCategories(); // Added this line to generate the buttons!
-            switchMode('wotw');
+            updateIcons();
+            switchAppTab('trail');
         };
     </script>
 </body>
