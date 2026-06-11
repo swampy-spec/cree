@@ -29,22 +29,32 @@
             height: auto;
             margin-top: 0.5rem;
         }
+
+        .builder-btn.selected {
+            background-color: #065f46; /* emerald-800 */
+            color: white;
+            border-color: #064e3b; /* emerald-900 */
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
-<body class="bg-neutral-50 min-h-screen font-sans relative">
+<!-- Added vibrant pastel mesh gradient background -->
+<body class="bg-gradient-to-br from-rose-100 via-amber-50 to-sky-100 min-h-screen font-sans relative overflow-x-hidden">
 
     <div class="max-w-7xl mx-auto p-4 md:p-8 relative">
-        <header class="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-6">
+        <!-- Header -->
+        <header class="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-6 relative z-20">
             <div class="flex items-center gap-4">
                 <div class="bg-emerald-800 p-3 rounded-2xl text-white shadow-lg">
                     <i data-lucide="book-open" size="32"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-neutral-900">Cree Word Database</h1>
-                    <p class="text-neutral-500 font-medium">Interactive study guide</p>
+                    <h1 class="text-2xl md:text-3xl font-bold text-neutral-900 drop-shadow-sm">Cree Word Database</h1>
+                    <p class="text-neutral-600 font-medium">Interactive study guide</p>
                 </div>
             </div>
 
+            <!-- Main Search -->
             <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                 <div class="relative group w-full sm:w-80">
                     <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" size="18"></i>
@@ -52,33 +62,80 @@
                         type="text" 
                         id="search-input"
                         placeholder="Search English or Cree..."
-                        class="w-full pl-12 pr-4 py-3 bg-white border border-neutral-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
+                        class="w-full pl-12 pr-4 py-3 bg-white/90 backdrop-blur-sm border border-neutral-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all"
                     >
                 </div>
             </div>
         </header>
 
-        <div class="flex border-b border-neutral-200 mb-6">
-            <button id="tab-local" onclick="switchMode('local')" class="px-6 py-3 border-b-2 border-emerald-700 font-bold text-emerald-700 text-sm md:text-base flex items-center gap-2 transition-all">
-                <i data-lucide="database" size="18"></i>
-                Local Study Deck
+        <!-- Mode Selection Tabs -->
+        <div class="flex border-b border-neutral-300/50 mb-6 overflow-x-auto no-scrollbar relative z-20">
+            <!-- New Word of the Week Tab -->
+            <button id="tab-wotw" onclick="switchMode('wotw')" class="px-6 py-3 border-b-2 border-rose-500 font-bold text-rose-600 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap bg-white/40 rounded-t-xl">
+                <i data-lucide="star" size="18"></i> Word of the Week
             </button>
-            <button id="tab-online" onclick="switchMode('online')" class="px-6 py-3 border-b-2 border-transparent font-medium text-neutral-500 hover:text-neutral-700 text-sm md:text-base flex items-center gap-2 transition-all">
-                <i data-lucide="globe" size="18"></i>
-                Online Live Search
+            <button id="tab-local" onclick="switchMode('local')" class="px-6 py-3 border-b-2 border-transparent font-medium text-neutral-600 hover:text-neutral-800 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap">
+                <i data-lucide="database" size="18"></i> Local Study Deck
+            </button>
+            <button id="tab-online" onclick="switchMode('online')" class="px-6 py-3 border-b-2 border-transparent font-medium text-neutral-600 hover:text-neutral-800 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap">
+                <i data-lucide="globe" size="18"></i> Online Live Search
+            </button>
+            <button id="tab-builder" onclick="switchMode('builder')" class="px-6 py-3 border-b-2 border-transparent font-medium text-neutral-600 hover:text-neutral-800 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap">
+                <i data-lucide="blocks" size="18"></i> Sentence Builder
             </button>
         </div>
 
+        <!-- Dynamic Workspace Area -->
         <div class="relative min-h-[550px] w-full rounded-3xl">
-            
-            <div class="absolute inset-0 -z-10 pointer-events-none opacity-[0.08] bg-center bg-no-repeat bg-contain max-w-5xl mx-auto" style="background-image: url('14e87a10-78a9-4b3e-a4c0-0e66c96d29cd.png');"></div>
+            <!-- Sacred Star Blanket Background Watermark (Multiply blend allows pastels to shine through) -->
+            <div class="absolute inset-0 -z-10 pointer-events-none opacity-[0.12] mix-blend-multiply bg-center bg-no-repeat bg-contain max-w-5xl mx-auto" style="background-image: url('14e87a10-78a9-4b3e-a4c0-0e66c96d29cd.png');"></div>
 
-            <div id="local-filters" class="mb-6 relative z-10">
-                <div id="categories-bar" class="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+            <!-- View 0: Word of the Week (Startup Page) -->
+            <div id="wotw-view" class="flex flex-col items-center justify-center py-4 relative z-10">
+                <div class="bg-white/80 backdrop-blur-xl border-4 border-white shadow-2xl rounded-3xl p-8 md:p-12 max-w-2xl w-full text-center relative overflow-hidden">
+                    <!-- Decorative colorful blobs inside the card -->
+                    <div class="absolute -top-16 -right-16 w-40 h-40 bg-yellow-300 rounded-full mix-blend-multiply filter blur-2xl opacity-60"></div>
+                    <div class="absolute -bottom-16 -left-16 w-40 h-40 bg-sky-300 rounded-full mix-blend-multiply filter blur-2xl opacity-60"></div>
+                    
+                    <h2 class="text-rose-500 font-extrabold tracking-widest uppercase text-sm mb-2 flex items-center justify-center gap-2 relative z-10">
+                        <i data-lucide="star" size="18"></i> Word of the Week
+                    </h2>
+                    
+                    <h3 class="text-5xl md:text-7xl font-black text-neutral-800 mt-4 mb-2 tracking-tight drop-shadow-sm relative z-10">
+                        miyo-kîsikâw
+                    </h3>
+                    <p class="text-xl md:text-2xl text-blue-600 font-bold mb-8 relative z-10">
+                        "It is a good day"
+                    </p>
+
+                    <button onclick="playWOTWAudio()" class="mx-auto flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 relative z-10">
+                        <i data-lucide="volume-2" size="24"></i> Hear Pronunciation
+                    </button>
+
+                    <!-- Teacher's Corner -->
+                    <div class="mt-12 pt-6 border-t-2 border-neutral-200 text-left relative z-10">
+                        <h4 class="font-bold text-neutral-800 flex items-center gap-2 mb-2 text-lg">
+                            <i data-lucide="graduation-cap" size="20" class="text-rose-500"></i> Teacher's Corner
+                        </h4>
+                        <p class="text-sm text-neutral-600 mb-5 leading-relaxed font-medium">
+                            Use this phrase to greet your classroom each morning! It sets a positive intention for the students. To explore the syllabics (ᒥᔪ ᑮᓯᑳᐤ) and deeper grammatical breakdowns, click the reference link below.
+                        </p>
+                        <a href="https://itwewina.altlab.app/search/?q=miyo-kisikaw" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-xl font-bold text-sm transition-colors shadow-sm">
+                            <i data-lucide="external-link" size="16"></i> Verify on itwêwina Dictionary
+                        </a>
                     </div>
+                </div>
             </div>
 
-            <div id="online-prompt" class="hidden mb-6 bg-emerald-50/90 border border-emerald-100 p-4 rounded-2xl flex flex-col md:flex-row md:items-stretch justify-between gap-4 relative z-10">
+            <!-- View 1: Local Deck Filters -->
+            <div id="local-filters" class="hidden mb-6 relative z-10">
+                <div id="categories-bar" class="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+                    <!-- Buttons generated by JS -->
+                </div>
+            </div>
+
+            <!-- View 2: Online Query Prompt -->
+            <div id="online-prompt" class="hidden mb-6 bg-white/80 backdrop-blur-md border border-emerald-100 p-4 rounded-2xl flex flex-col md:flex-row md:items-stretch justify-between gap-4 relative z-10 shadow-sm">
                 <div class="flex-1">
                     <h3 id="online-title" class="font-bold text-emerald-900 text-sm uppercase tracking-wider">creedictionary.com Live Database Active</h3>
                     <p id="online-description" class="text-emerald-700 text-xs mt-1">This mode connects directly to the Online Cree Dictionary to search over 44,000+ words.</p>
@@ -98,18 +155,21 @@
                 </div>
             </div>
 
-            <div id="word-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 relative z-10">
-                </div>
-
-            <div id="loading-state" class="hidden text-center py-24 relative z-10">
-                <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-800 border-t-transparent mb-4"></div>
-                <p id="loading-text" class="text-neutral-500 font-medium">Fetching records from Cree Dictionary...</p>
+            <!-- Grid Container for Local/Online Cards -->
+            <div id="word-grid" class="hidden grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 relative z-10">
+                <!-- Cards generated by JS -->
             </div>
 
-            <div id="empty-state" class="hidden text-center py-20 bg-white/90 rounded-3xl border border-neutral-100 px-6 relative z-10">
-                <p class="text-neutral-400 text-lg mb-4">No results found.</p>
-                
-                <div id="struggle-container" class="hidden mt-6 max-w-md mx-auto bg-neutral-50/95 p-6 rounded-2xl border border-neutral-100">
+            <!-- Loading State -->
+            <div id="loading-state" class="hidden text-center py-24 relative z-10">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-800 border-t-transparent mb-4"></div>
+                <p id="loading-text" class="text-neutral-600 font-bold drop-shadow-sm">Fetching records...</p>
+            </div>
+
+            <!-- Empty State for Searches -->
+            <div id="empty-state" class="hidden text-center py-20 bg-white/90 backdrop-blur-sm rounded-3xl border border-neutral-100 px-6 relative z-10 shadow-sm">
+                <p class="text-neutral-500 font-bold text-lg mb-4">No results found.</p>
+                <div id="struggle-container" class="hidden mt-6 max-w-md mx-auto bg-neutral-50/95 p-6 rounded-2xl border border-neutral-200 shadow-inner">
                     <h4 class="font-bold text-neutral-700 text-sm mb-1">Struggling to find the word?</h4>
                     <p class="text-neutral-500 text-xs mb-4">Third-party connections can occasionally time out. Try searching directly on their native web search portals:</p>
                     <div class="flex flex-col sm:flex-row gap-2 justify-center">
@@ -122,18 +182,80 @@
                     </div>
                 </div>
             </div>
+
+            <!-- View 3: Sentence Builder Workspace -->
+            <div id="builder-view" class="hidden flex-col gap-6 relative z-10 pb-10">
+                
+                <!-- Output Result Panel -->
+                <div class="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border-2 border-white p-8 text-center relative overflow-hidden">
+                    <div class="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-rose-400 via-amber-400 to-sky-400"></div>
+                    <span class="text-[10px] uppercase tracking-widest opacity-50 font-bold mb-2 block">Generated SRO</span>
+                    <h2 id="builder-cree-output" class="text-4xl md:text-5xl font-extrabold text-emerald-900 mb-4 tracking-tight drop-shadow-sm"></h2>
+                    <p id="builder-english-output" class="text-lg md:text-xl text-neutral-600 font-bold italic mb-6"></p>
+                    
+                    <input type="hidden" id="builder-cree-raw" value="" />
+                    
+                    <button onclick="playBuilderAudio()" class="mx-auto px-6 py-3 bg-gradient-to-r from-emerald-100 to-teal-100 hover:from-emerald-200 hover:to-teal-200 border border-emerald-200 text-emerald-800 font-bold rounded-full transition-colors flex items-center gap-2 shadow-sm">
+                        <i data-lucide="volume-2" size="20"></i> Play Pronunciation
+                    </button>
+                </div>
+
+                <!-- Instructional Tip -->
+                <div class="bg-blue-50/90 backdrop-blur-sm border border-blue-200 p-4 rounded-xl flex gap-3 text-sm text-blue-800 items-start shadow-sm">
+                    <i data-lucide="info" size="20" class="shrink-0 mt-0.5"></i>
+                    <p><strong>Cree is polysynthetic!</strong> When building a sentence, the person (I, You, We) attaches to the front of the verb as a prefix (like <em>ni-</em> or <em>ki-</em>), and the tense (like <em>wî-</em> for future) is sandwiched in between. Select blocks below to see the grammar update automatically.</p>
+                </div>
+
+                <!-- Column Selection Area -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Column 1: Subjects -->
+                    <div class="bg-white/80 p-5 rounded-2xl border border-white shadow-md backdrop-blur-sm">
+                        <div class="flex items-center gap-2 mb-4 border-b border-neutral-200 pb-2">
+                            <div class="bg-indigo-100 p-1.5 rounded-lg text-indigo-700"><i data-lucide="user" size="18"></i></div>
+                            <h3 class="font-bold text-neutral-800">1. Who? (Subject)</h3>
+                        </div>
+                        <div id="col-pronouns" class="flex flex-col gap-2"></div>
+                    </div>
+
+                    <!-- Column 2: Preverbs -->
+                    <div class="bg-white/80 p-5 rounded-2xl border border-white shadow-md backdrop-blur-sm">
+                        <div class="flex items-center gap-2 mb-4 border-b border-neutral-200 pb-2">
+                            <div class="bg-amber-100 p-1.5 rounded-lg text-amber-700"><i data-lucide="clock" size="18"></i></div>
+                            <h3 class="font-bold text-neutral-800">2. When? (Preverb)</h3>
+                        </div>
+                        <div id="col-preverbs" class="flex flex-col gap-2"></div>
+                    </div>
+
+                    <!-- Column 3: Verbs -->
+                    <div class="bg-white/80 p-5 rounded-2xl border border-white shadow-md backdrop-blur-sm">
+                        <div class="flex items-center gap-2 mb-4 border-b border-neutral-200 pb-2">
+                            <div class="bg-rose-100 p-1.5 rounded-lg text-rose-700"><i data-lucide="activity" size="18"></i></div>
+                            <h3 class="font-bold text-neutral-800">3. Action (VAI)</h3>
+                        </div>
+                        <div id="col-verbs" class="flex flex-col gap-2"></div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
 
-        <footer class="mt-20 py-8 border-t border-neutral-200 text-center relative z-10 px-4">
-            <p class="text-neutral-500 text-sm italic mb-4">"nêhiyawêwin: Keeping the language alive."</p>
-            <p class="text-neutral-400 text-xs max-w-2xl mx-auto leading-relaxed">
+        <!-- Footer With Proper Attributions -->
+        <footer class="mt-20 py-8 border-t border-neutral-300/50 text-center relative z-10 px-4">
+            <p class="text-neutral-600 text-sm font-bold italic mb-4 drop-shadow-sm">"nêhiyawêwin: Keeping the language alive."</p>
+            <p class="text-neutral-500 text-xs max-w-2xl mx-auto leading-relaxed mb-3">
                 A portion of the translations and vocabulary was compiled by the Neyaskweyâhk Cree Department at Miyo Wahkohtowin Education. We extend our sincere gratitude, <strong>ay hay</strong> to the Maskwacis Cree speakers for their invaluable guidance and contributions to this work.
+            </p>
+            <p class="text-neutral-500 text-[10px] max-w-2xl mx-auto leading-relaxed border-t border-neutral-300/50 pt-3">
+                Grammar structures and Sentence Builder algorithms are adapted from Chelsea Vowel's <em>mâci-nêhiyawêtân</em> lessons (apihtawikosisan.com) under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" class="underline hover:text-neutral-800 font-bold">CC BY-NC-SA 4.0 license</a>.
             </p>
         </footer>
     </div>
 
+    <!-- Pronunciation Laboratory Practice Modal -->
     <div id="practice-modal" class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl border border-neutral-100 max-w-lg w-full overflow-hidden" onclick="event.stopPropagation()">
+            <!-- Modal Header -->
             <div class="bg-emerald-800 text-white p-6 flex justify-between items-center">
                 <div class="flex items-center gap-2">
                     <i data-lucide="mic" class="animate-pulse"></i>
@@ -144,13 +266,16 @@
                 </button>
             </div>
 
+            <!-- Modal Content -->
             <div class="p-6 space-y-6">
+                <!-- Target word display -->
                 <div class="text-center space-y-1">
                     <span id="modal-category" class="text-[10px] uppercase tracking-widest text-emerald-700 font-extrabold bg-emerald-50 px-2.5 py-1 rounded-full">...</span>
                     <h4 id="modal-cree-word" class="text-3xl font-extrabold text-neutral-800 pt-2">...</h4>
                     <p id="modal-english-word" class="text-sm text-neutral-500 italic">...</p>
                 </div>
 
+                <!-- Native Playback Area -->
                 <div id="modal-reference-audio-section" class="bg-neutral-50 p-4 rounded-2xl flex items-center justify-between border border-neutral-100">
                     <div class="flex items-center gap-3">
                         <div class="bg-emerald-100 p-2.5 rounded-full text-emerald-800">
@@ -166,12 +291,14 @@
                     </button>
                 </div>
                 
+                <!-- No Audio Warning for Modal -->
                 <div id="modal-no-audio-warning" class="hidden bg-neutral-100 p-4 rounded-2xl flex items-center justify-center border border-neutral-200">
                     <p class="text-xs font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-2">
                         <i data-lucide="volume-x" size="14"></i> No repository audio available for this word
                     </p>
                 </div>
 
+                <!-- User voice recording station -->
                 <div class="flex flex-col items-center justify-center space-y-3 pt-4 border-t border-neutral-100">
                     <div id="record-timer" class="text-2xl font-mono text-neutral-700 font-bold">00:00</div>
                     
@@ -182,22 +309,28 @@
                     <p id="record-instructions" class="text-xs font-semibold text-neutral-400">Tap to start recording</p>
                 </div>
 
+                <!-- AI Speech Analysis Output Panel -->
                 <div id="analysis-section" class="hidden mt-6 pt-6 border-t border-neutral-100">
+                    <!-- Loading Status -->
                     <div id="analysis-loading" class="hidden text-center py-4 space-y-2">
                         <div class="inline-block animate-spin rounded-full h-8 w-8 border-3 border-emerald-800 border-t-transparent"></div>
                         <p class="text-xs text-neutral-500 font-medium animate-pulse">Gemini AI grading phonetics...</p>
                     </div>
 
+                    <!-- Error Status -->
                     <div id="analysis-error" class="hidden text-center py-4 bg-red-50 border border-red-100 rounded-2xl p-4">
                         <p class="text-red-700 text-sm font-semibold">Grading Failed</p>
                         <p id="analysis-error-desc" class="text-xs text-red-500 mt-1">Audio was too quiet or connection broken.</p>
                     </div>
 
+                    <!-- Success Status -->
                     <div id="analysis-success" class="hidden space-y-4">
                         <div class="flex flex-col sm:flex-row items-center gap-4 bg-neutral-50 p-4 rounded-2xl border border-neutral-100">
+                            <!-- Circular Score Badge -->
                             <div id="score-gauge-container" class="relative flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 border-4 border-emerald-500 text-emerald-800 font-bold text-2xl">
                                 <span id="analysis-score">0%</span>
                             </div>
+                            <!-- Feedback Details -->
                             <div class="flex-1 text-center sm:text-left">
                                 <h5 class="font-bold text-neutral-700 text-xs uppercase tracking-wider flex items-center justify-center sm:justify-start gap-1.5">
                                     <i data-lucide="sparkles" size="14" class="text-emerald-700"></i> Speech Lab Feedback
@@ -215,7 +348,7 @@
         const apiKey = "";
         
         // Mode Management
-        let appMode = "local"; 
+        let appMode = "wotw"; 
         let searchTerm = "";
         let activeCategory = "All";
         let onlineResults = [];
@@ -227,6 +360,37 @@
         let recordSeconds = 0;
         let localStream = null;
         let currentPracticeWord = null;
+
+        // --- SENTENCE BUILDER GRAMMAR DATA ---
+        const PRONOUNS = [
+            { id: 'niya', cree: 'niya', english: 'I', prefix: 'ni', vowelPrefix: 'nit', suffix: 'n' },
+            { id: 'kiya', cree: 'kiya', english: 'You', prefix: 'ki', vowelPrefix: 'kit', suffix: 'n' },
+            { id: 'wiya', cree: 'wiya', english: 'He/She', prefix: '', vowelPrefix: '', suffix: 'w' },
+            { id: 'imp2s', cree: '(Command - You)', english: 'You', prefix: '', vowelPrefix: '', suffix: '' },
+            { id: 'imp2p', cree: '(Command - You all)', english: 'You all', prefix: '', vowelPrefix: '', suffix: 'k' },
+            { id: 'imp2i', cree: '(Command - Let us)', english: "Let's", prefix: '', vowelPrefix: '', suffix: 'tân' }
+        ];
+
+        const PREVERBS = [
+            { id: 'none', cree: '', english: '' },
+            { id: 'wî', cree: 'wî-', english: 'going to' },
+            { id: 'nôhtê', cree: 'nôhtê-', english: 'want to' },
+            { id: 'kî', cree: 'kî-', english: 'did (past)' },
+            { id: 'nihtâ', cree: 'nihtâ-', english: 'good at' },
+            { id: 'pe', cree: 'pe-', english: 'come and' }
+        ];
+
+        const VERBS_VAI = [
+            { id: 'api', cree: 'api', english: 'sit', startsWithVowel: true },
+            { id: 'mîciso', cree: 'mîciso', english: 'eat', startsWithVowel: false },
+            { id: 'nipâ', cree: 'nipâ', english: 'sleep', startsWithVowel: false },
+            { id: 'pimohtê', cree: 'pimohtê', english: 'walk', startsWithVowel: false },
+            { id: 'waniskâ', cree: 'waniskâ', english: 'wake up', startsWithVowel: false },
+            { id: 'nîmihito', cree: 'nîmihito', english: 'dance', startsWithVowel: false },
+            { id: 'nêhiyawê', cree: 'nêhiyawê', english: 'speak Cree', startsWithVowel: false }
+        ];
+
+        let builderState = { pronoun: PRONOUNS[0], preverb: PREVERBS[0], verb: VERBS_VAI[0] };
 
         // Curated Local Database
         const CREE_DATA = [
@@ -307,7 +471,6 @@
             { id: 119, english: "Beaver", cree: "amisk", category: "Birds & Animals", asset: "https://raw.githubusercontent.com/swampy-spec/gif/main/beaver.svg" },
             { id: 120, english: "Cat", cree: "minôs", category: "Birds & Animals", asset: "https://raw.githubusercontent.com/swampy-spec/gif/main/cat.svg" },
             
-            // Note: Example of adding a placeholder hash to link a specific file for "atim" (dog) to the repo.
             { id: 121, english: "Dog", cree: "atim", category: "Birds & Animals", asset: "https://raw.githubusercontent.com/swampy-spec/gif/main/dog.svg", hash: "main", file: "atim.m4a" },
             
             { id: 122, english: "Cow", cree: "mostos", category: "Birds & Animals", asset: "https://raw.githubusercontent.com/swampy-spec/gif/main/cow.svg" },
@@ -680,267 +843,7 @@
             { id: 895, english: "Comb hair", cree: "sîkaho", category: "Daily Routine" },
             { id: 896, english: "Wait for bus", cree: "pehi pôsôwinis", category: "Daily Routine" },
             { id: 897, english: "Brush your teeth", cree: "kisîpekanâpiteho", category: "Daily Routine" },
-            { id: 898, english: "Make breakfast", cree: "kîksepamîcisôwin osîhta", category: "Daily Routine" },
-
-            // --- NEW: TRADITIONAL COOKING ---
-            { id: 1000, english: "Bannock making", cree: "epahkwesikanihkehk", category: "Traditional Cooking" },
-            { id: 1001, english: "Oven Bannock", cree: "esekwâpiskinibt pahkwesihkan", category: "Traditional Cooking" },
-            { id: 1002, english: "Kneading", cree: "mâmâkonikewin", category: "Traditional Cooking" },
-            { id: 1003, english: "S/he kneads it", cree: "mâmâkonew", category: "Traditional Cooking" },
-            { id: 1004, english: "Flour", cree: "askipahkwesikan", category: "Traditional Cooking" },
-            { id: 1005, english: "Fry bread", cree: "pimîwihkasikan", category: "Traditional Cooking" },
-            { id: 1006, english: "Raisin bannock", cree: "sôminsepahkwesihkan", category: "Traditional Cooking" },
-            { id: 1007, english: "Crushing chokecherries", cree: "esikwatahiminchk", category: "Traditional Cooking" },
-            { id: 1008, english: "It is raw", cree: "askitin", category: "Traditional Cooking" },
-            { id: 1009, english: "Fresh meat", cree: "oskiwiyâs", category: "Traditional Cooking" },
-            { id: 1010, english: "Raw meat", cree: "askiwiyâs", category: "Traditional Cooking" },
-            { id: 1011, english: "S/he eats something raw", cree: "askipiw", category: "Traditional Cooking" },
-            { id: 1012, english: "S/he cooks it", cree: "kîsisam", category: "Traditional Cooking" },
-            { id: 1013, english: "Cook food (command)", cree: "kîstepo", category: "Traditional Cooking" },
-            { id: 1014, english: "Boil it (command)", cree: "pakâcike", category: "Traditional Cooking" },
-            { id: 1015, english: "S/he boils food", cree: "pakâcikew", category: "Traditional Cooking" },
-            { id: 1016, english: "It is in full boil", cree: "kwaskweyâcôwasiw", category: "Traditional Cooking" },
-            { id: 1017, english: "Roast duck", cree: "esekwâpiskiniht sîsîp", category: "Traditional Cooking" },
-            { id: 1018, english: "Cooking meat", cree: "ekîsamihk wiyâs", category: "Traditional Cooking" },
-            { id: 1019, english: "Preparing meat by slicing thinly", cree: "êpânisâmihk", category: "Traditional Cooking" },
-            { id: 1020, english: "S/he slices meat to dry", cree: "pânisâwew", category: "Traditional Cooking" },
-            { id: 1021, english: "Hang meat to dry", cree: "epasamihk", category: "Traditional Cooking" },
-            { id: 1022, english: "Dried venison / beef jerky", cree: "kâhkewak(wa)", category: "Traditional Cooking" },
-            { id: 1023, english: "S/he is making dried meat", cree: "kâhkewakohkew", category: "Traditional Cooking" },
-            { id: 1024, english: "Pounded dried meat", cree: "yîwahikan(ak)", category: "Traditional Cooking" },
-            { id: 1025, english: "It is smoky/smoked", cree: "kaskâpahtew", category: "Traditional Cooking" },
-            { id: 1026, english: "S/he smokes it", cree: "kaskâpasam", category: "Traditional Cooking" },
-            { id: 1027, english: "Crushing berries", cree: "êtakwahamihk", category: "Traditional Cooking" },
-            { id: 1028, english: "Dried berries", cree: "pâsiminâna", category: "Traditional Cooking" },
-            { id: 1029, english: "Smoked fish", cree: "ekâskapâsot kinosew", category: "Traditional Cooking" },
-            { id: 1030, english: "Hamburger", cree: "sikwatayhikan", category: "Traditional Cooking" },
-
-            // --- NEW: MOTHER EARTH ---
-            { id: 1100, english: "Hill / Hilly terrain", cree: "ayapatinâw(a)", category: "Mother Earth" },
-            { id: 1101, english: "Slough", cree: "ihkatawâw(a)", category: "Mother Earth" },
-            { id: 1102, english: "It's clean / pure / Canada", cree: "kanâtan", category: "Mother Earth" },
-            { id: 1103, english: "Ocean or sea", cree: "kihci-kamiy", category: "Mother Earth" },
-            { id: 1104, english: "Small island", cree: "ministikos(a)", category: "Mother Earth" },
-            { id: 1105, english: "Edge of the shore", cree: "sisônckâm", category: "Mother Earth" },
-            { id: 1106, english: "Bush", cree: "sakâw(a)", category: "Mother Earth" },
-            { id: 1107, english: "Grassland or prairie", cree: "epaskwak", category: "Mother Earth" },
-            { id: 1108, english: "Forest", cree: "kaskisakâw", category: "Mother Earth" },
-            { id: 1109, english: "Foothill", cree: "iskwamatinâw(a)", category: "Mother Earth" },
-            { id: 1110, english: "Mountain", cree: "waciy(a)", category: "Mother Earth" },
-            { id: 1111, english: "Desert", cree: "pâhkwataskamikâw", category: "Mother Earth" },
-            { id: 1112, english: "Swamp", cree: "maskekohk", category: "Mother Earth" },
-            { id: 1113, english: "Cave / Cavern", cree: "kawatowahcak(wa)", category: "Mother Earth" },
-            { id: 1114, english: "Hilltop", cree: "tahkohtâmatin(a)", category: "Mother Earth" },
-            { id: 1115, english: "Butte / Cliff", cree: "kaskatinâhk(wa)", category: "Mother Earth" },
-            { id: 1116, english: "Campground", cree: "kapesiwin(a)", category: "Mother Earth" },
-            { id: 1117, english: "Valley", cree: "ka tawâtinak", category: "Mother Earth" },
-            { id: 1118, english: "An open space", cree: "katawak", category: "Mother Earth" },
-            { id: 1119, english: "Island", cree: "ministik(wa)", category: "Mother Earth" },
-
-            // --- NEW: PLANTS & FLOWERS ---
-            { id: 1200, english: "Tree", cree: "mîtos", category: "Plants" },
-            { id: 1201, english: "Tamarak", cree: "wâkinâkan(ak)", category: "Plants" },
-            { id: 1202, english: "Thorn bush", cree: "okâm'nakasîy", category: "Plants" },
-            { id: 1203, english: "Pine tree", cree: "sihta(k)", category: "Plants" },
-            { id: 1204, english: "Spruce tree", cree: "minahik(wak)", category: "Plants" },
-            { id: 1205, english: "Red cedar", cree: "mihkosiht(ak)", category: "Plants" },
-            { id: 1206, english: "Birch", cree: "waskway(ak)", category: "Plants" },
-            { id: 1207, english: "White spruce", cree: "wâpasiht(ak)", category: "Plants" },
-            { id: 1208, english: "White willow", cree: "mahihkanâhtik", category: "Plants" },
-            { id: 1209, english: "Grass or hay", cree: "maskosiy(a)", category: "Plants" },
-            { id: 1210, english: "Sweetgrass", cree: "wîhkask(wa)", category: "Plants" },
-            { id: 1211, english: "Mushroom", cree: "ayikinônâcikan(ak)", category: "Plants" },
-            { id: 1212, english: "Raspberry bush", cree: "ayoskanâhtik(wa)", category: "Plants" },
-            { id: 1213, english: "Cattail", cree: "pikwanâhtik(wa)", category: "Plants" },
-            { id: 1214, english: "Fern", cree: "masânâhtik(wak)", category: "Plants" },
-            { id: 1215, english: "Poison ivy", cree: "masân(ak)", category: "Plants" },
-            { id: 1216, english: "Rat root", cree: "wîhkes(a)", category: "Plants" },
-            { id: 1217, english: "White flower (Muskeg)", cree: "maskekopak(wa)", category: "Plants" },
-            { id: 1218, english: "Dandelion", cree: "osâwâpikwanis(a)", category: "Plants" },
-            { id: 1219, english: "Lady slipper", cree: "askîtakow maskisinis(a)", category: "Plants" },
-            { id: 1220, english: "Wild Rose", cree: "okinîwâpikwânis(a)", category: "Plants" },
-
-            // --- NEW: INSECTS ---
-            { id: 1300, english: "Beetle / Crawling insect", cree: "manicôs(ak)", category: "Insects" },
-            { id: 1301, english: "Worm / Caterpillar / Maggot", cree: "môhtew(ak)", category: "Insects" },
-            { id: 1302, english: "Fly", cree: "ôcew(ak)", category: "Insects" },
-            { id: 1303, english: "Mosquito", cree: "sakimes(ak)", category: "Insects" },
-            { id: 1304, english: "Ant", cree: "êyikos(ak)", category: "Insects" },
-            { id: 1305, english: "Bee", cree: "âmô(wak)", category: "Insects" },
-            { id: 1306, english: "Butterfly", cree: "kamamak(wak)", category: "Insects" },
-            { id: 1307, english: "Spider", cree: "ocahpihkesîs(ak)", category: "Insects" },
-            { id: 1308, english: "Dragonfly", cree: "côhwekanâpîsis(ak)", category: "Insects" },
-            { id: 1309, english: "Louse (lice)", cree: "îhkwa(k)", category: "Insects" },
-            { id: 1310, english: "Horsefly", cree: "misâhk(wak)", category: "Insects" },
-            { id: 1311, english: "Lady bug", cree: "nôsemanicôs(ak)", category: "Insects" },
-            { id: 1312, english: "Grasshopper", cree: "kwâskohcisîs(ak)", category: "Insects" },
-            { id: 1313, english: "Tick", cree: "môsotihkomak(ak)", category: "Insects" },
-            { id: 1314, english: "Flea", cree: "atimotihkoma(k)", category: "Insects" },
-            { id: 1315, english: "Bedbug", cree: "napakis(ak)", category: "Insects" },
-
-            // --- NEW: WATER & FISH ---
-            { id: 1400, english: "Water", cree: "nipiy", category: "Mother Earth" },
-            { id: 1401, english: "Lake", cree: "sâkahikan(a)", category: "Mother Earth" },
-            { id: 1402, english: "River", cree: "sîpiy(a)", category: "Mother Earth" },
-            { id: 1403, english: "Brook", cree: "sîpîsis", category: "Mother Earth" },
-            { id: 1404, english: "Fish", cree: "kinosew(ak)", category: "Birds & Animals" },
-            { id: 1405, english: "Trout", cree: "namekosis(ak)", category: "Birds & Animals" },
-            { id: 1406, english: "Whitefish", cree: "atihkamek(wak)", category: "Birds & Animals" },
-            { id: 1407, english: "Perch", cree: "asâwesis(ak)", category: "Birds & Animals" },
-            { id: 1408, english: "Pike / Jackfish", cree: "iyinitokinosew(ak)", category: "Birds & Animals" },
-            { id: 1409, english: "Minnow", cree: "kinosesis(ak)", category: "Birds & Animals" },
-            { id: 1410, english: "Sturgeon", cree: "namew(ak)", category: "Birds & Animals" },
-            { id: 1411, english: "Oyster", cree: "êsis(ak)", category: "Birds & Animals" },
-            { id: 1412, english: "Leech / Snail", cree: "akahkway(ak)", category: "Birds & Animals" },
-            { id: 1413, english: "Turtle", cree: "miskinâhk(wak)", category: "Birds & Animals" },
-
-            // --- NEW: BIRDS ---
-            { id: 1500, english: "Bald eagle", cree: "mikisiw(ak)", category: "Birds & Animals" },
-            { id: 1501, english: "Snowy owl", cree: "wâpôhô(wak)", category: "Birds & Animals" },
-            { id: 1502, english: "Raven", cree: "kâhkâkiw(ak)", category: "Birds & Animals" },
-            { id: 1503, english: "Robin", cree: "pihpihciw(ak)", category: "Birds & Animals" },
-            { id: 1504, english: "Chickadee", cree: "ap'scîkîskikis(ak)", category: "Birds & Animals" },
-            { id: 1505, english: "Hummingbird", cree: "âmôpiyesîs(ak)", category: "Birds & Animals" },
-            { id: 1506, english: "Prairie chicken", cree: "paskwâw'pihcw(ak)", category: "Birds & Animals" },
-            { id: 1507, english: "Owl", cree: "ôhô(wak)", category: "Birds & Animals" },
-            { id: 1508, english: "Turkey", cree: "onawakohţew(ak)", category: "Birds & Animals" },
-            { id: 1509, english: "Pigeon", cree: "omîhmîw(ak)", category: "Birds & Animals" },
-            { id: 1510, english: "Seagull", cree: "kiyâsk(wak)", category: "Birds & Animals" },
-            { id: 1511, english: "Woodpecker", cree: "papahkwecakayihkesis(ak)", category: "Birds & Animals" },
-
-            // --- NEW: SKIN/HIDE ---
-            { id: 1600, english: "Hide / Leather", cree: "pahkehkin(a)", category: "Clothing" },
-            { id: 1601, english: "Pelt", cree: "wayan(a)", category: "Clothing" },
-            { id: 1602, english: "Beaver pelt", cree: "amiskwayân(a)", category: "Clothing" },
-            { id: 1603, english: "Fleece (sheep hair)", cree: "mâyotihkosowayân", category: "Clothing" },
-            { id: 1604, english: "Deerskin / hide", cree: "apisimoswekinos(a)", category: "Clothing" },
-            { id: 1605, english: "Fox pelt", cree: "mahkesîsîwayân(a)", category: "Clothing" },
-            { id: 1606, english: "Moose hide", cree: "môswekin(a)", category: "Clothing" },
-            { id: 1607, english: "Rabbit skin", cree: "wâpôswayân(a)", category: "Clothing" },
-            { id: 1608, english: "Feather down", cree: "opîwaya", category: "Clothing" },
-            { id: 1609, english: "Feather(s)", cree: "mîkwan(ak)", category: "Clothing" },
-
-            // --- NEW: ANIMALS FROM ANOTHER LAND ---
-            { id: 1700, english: "Sow", cree: "nôsekôhkos(ak)", category: "Birds & Animals" },
-            { id: 1701, english: "Bat", cree: "apahkwâcîs(ak)", category: "Birds & Animals" },
-            { id: 1702, english: "Mole", cree: "opôtacikesiw(ak)", category: "Birds & Animals" },
-            { id: 1703, english: "Monkey", cree: "ocayisinâkes(ak)", category: "Birds & Animals" },
-            { id: 1704, english: "Giraffe", cree: "kinwapekwayaw(ak)", category: "Birds & Animals" },
-            { id: 1705, english: "Elephant", cree: "kinwapekikot(ak)", category: "Birds & Animals" },
-            { id: 1706, english: "Hippopotamus", cree: "misayekitonew otapampek kôhkos(ak)", category: "Birds & Animals" },
-            { id: 1707, english: "Lion", cree: "mistahkêsiw(ak)", category: "Birds & Animals" },
-            { id: 1708, english: "Zebra", cree: "masinâsiwâtim(wak)", category: "Birds & Animals" },
-            { id: 1709, english: "Polar bear", cree: "wâpimaskwa(k)", category: "Birds & Animals" },
-            { id: 1710, english: "Seal", cree: "ahkihk(ak)", category: "Birds & Animals" },
-            { id: 1711, english: "Camel", cree: "piskwâwikanew pisiskiw", category: "Birds & Animals" },
-
-            // --- NEW: GARDEN ---
-            { id: 1800, english: "Tilling the soil", cree: "sikwahtsikewin", category: "Garden" },
-            { id: 1801, english: "Watering the garden", cree: "êsâpatâhk kiscikânsa", category: "Garden" },
-            { id: 1802, english: "Planting", cree: "êkistikehk", category: "Garden" },
-            { id: 1803, english: "Weeding", cree: "paskopitcikewin", category: "Garden" },
-            { id: 1804, english: "Harvesting underground vegetables", cree: "êmônahikehk", category: "Garden" },
-            { id: 1805, english: "Flower(s)", cree: "wâpikwanîs(a)", category: "Garden" },
-            { id: 1806, english: "Weed(s)", cree: "macaskosiy", category: "Garden" },
-            { id: 1807, english: "Thistle(s)", cree: "kâm nakasiy(ak)", category: "Garden" },
-            { id: 1808, english: "Vegetable(s)", cree: "kiscikânis(a)", category: "Garden" },
-            { id: 1809, english: "Turnip", cree: "otsîhkân", category: "Garden" },
-            { id: 1810, english: "Carrot(s)", cree: "oskâtâsk(wak)", category: "Garden" },
-            { id: 1811, english: "Potato(es)", cree: "askipwâw(a)", category: "Garden" },
-            { id: 1812, english: "Peas and bean(s)", cree: "maskimotîsak", category: "Garden" },
-            { id: 1813, english: "Beet(s)", cree: "mihkôskâtâsk(wak)", category: "Garden" },
-            { id: 1814, english: "Lettuce / leafy vegetables", cree: "nîpiya", category: "Garden" },
-            { id: 1815, english: "Cabbage", cree: "otêhipak", category: "Garden" },
-            { id: 1816, english: "Corn", cree: "mahtâmin(ak)", category: "Garden" },
-            { id: 1817, english: "Tomato(es)", cree: "kiniy(ak)", category: "Garden" },
-            { id: 1818, english: "Rhubarb", cree: "sîwpakwa", category: "Garden" },
-            { id: 1819, english: "Fruit(s)", cree: "mînisihkan(a)", category: "Garden" },
-            { id: 1820, english: "Raspberry", cree: "ayoskan(ak)", category: "Garden" },
-            { id: 1821, english: "Blueberry", cree: "nikomin(a)", category: "Garden" },
-            { id: 1822, english: "Strawberry", cree: "ôteyhimin(a)", category: "Garden" },
-            { id: 1823, english: "Gooseberry", cree: "sâpômin(a)", category: "Garden" },
-            { id: 1824, english: "Cranberry", cree: "nîpiminân(a)", category: "Garden" },
-            { id: 1825, english: "Huckleberry", cree: "iyinimin(a)", category: "Garden" },
-            { id: 1826, english: "Saskatoon berry", cree: "misâskwatômin(a)", category: "Garden" },
-            { id: 1827, english: "Crab apple", cree: "picikwâs(a)", category: "Garden" },
-            { id: 1828, english: "Hoe", cree: "ayahkew cîkahikan", category: "Garden" },
-            { id: 1829, english: "Tiller", cree: "sikwahtsikan", category: "Garden" },
-            { id: 1830, english: "Garden hose", cree: "sâpipacikan(a)", category: "Garden" },
-
-            // --- NEW: RECREATION ---
-            { id: 1900, english: "Running shoes", cree: "pimpahtâ waskisina", category: "Recreation" },
-            { id: 1901, english: "Swimming suit", cree: "pakâsimow ayiwinisa", category: "Recreation" },
-            { id: 1902, english: "Shorts", cree: "kîskicâsis", category: "Recreation" },
-            { id: 1903, english: "Outdoors", cree: "wayawîtimihk", category: "Recreation" },
-            { id: 1904, english: "Indoors", cree: "pîhcayihk", category: "Recreation" },
-            { id: 1905, english: "Fishing", cree: "kwâskwepicikewin", category: "Recreation" },
-            { id: 1906, english: "Golf", cree: "kwâskwetahikewin", category: "Recreation" },
-            { id: 1907, english: "Hiking", cree: "pimohtewin", category: "Recreation" },
-            { id: 1908, english: "Horseback riding", cree: "misatim epâpamtehtapihk", category: "Recreation" },
-            { id: 1909, english: "Photography", cree: "masinpayihcikewin", category: "Recreation" },
-            { id: 1910, english: "Skating", cree: "soniskwatahikeewin", category: "Recreation" },
-            { id: 1911, english: "Skates", cree: "soniskwâtahikana", category: "Recreation" },
-            { id: 1912, english: "Swimming / take a bath", cree: "yâhyânamowin/pâkasimôwin", category: "Recreation" },
-            { id: 1913, english: "Bicycle", cree: "wâsakaweepiskikan", category: "Recreation" },
-            { id: 1914, english: "Bat", cree: "kwaskwetahikan", category: "Recreation" },
-            { id: 1915, english: "Ball", cree: "pâkahtowân", category: "Recreation" },
-            { id: 1916, english: "Football", cree: "kakwasketahkiskaht pakahtowân", category: "Recreation" },
-            { id: 1917, english: "Jump rope", cree: "kwaskohtâpân", category: "Recreation" },
-            { id: 1918, english: "Swing", cree: "wêwêpison", category: "Recreation" },
-            { id: 1919, english: "Wagon", cree: "ôtâpânâsk", category: "Recreation" },
-            { id: 1920, english: "Balloon", cree: "wîhkway", category: "Recreation" },
-            { id: 1921, english: "Camera", cree: "masinpayihcikan", category: "Recreation" },
-            { id: 1922, english: "Cards", cree: "peyakopehikanak", category: "Recreation" },
-            { id: 1923, english: "Games", cree: "metaweewina", category: "Recreation" },
-            { id: 1924, english: "Marbles", cree: "soskominanak", category: "Recreation" },
-            { id: 1925, english: "Mask", cree: "mihkwâkanihkân", category: "Recreation" },
-            { id: 1926, english: "Party", cree: "mâmawo-môcikihtâwin", category: "Recreation" },
-            { id: 1927, english: "Puppets", cree: "ayisînihkânak", category: "Recreation" },
-            { id: 1928, english: "Radio", cree: "kitohcikan", category: "Recreation" },
-            { id: 1929, english: "Television", cree: "cikâstepayihcikan", category: "Recreation" },
-            { id: 1930, english: "Toys", cree: "metawâkana", category: "Recreation" },
-            { id: 1931, english: "Hunting", cree: "mâcîwin", category: "Recreation" },
-            { id: 1932, english: "To snare", cree: "etâpakwehk", category: "Recreation" },
-            { id: 1933, english: "Trapping", cree: "wanîhikewin", category: "Recreation" },
-            { id: 1934, english: "Playing ball", cree: "epâkahtôwehk", category: "Recreation" },
-
-            // --- NEW: WEATHER & CAMPING ---
-            { id: 2000, english: "It is hot", cree: "êkisâstek", category: "Weather" },
-            { id: 2001, english: "It is warm", cree: "êkîsopwek", category: "Weather" },
-            { id: 2002, english: "It is cold", cree: "êkîsik", category: "Weather" },
-            { id: 2003, english: "It is chilly/cold", cree: "êtahkâyâk", category: "Weather" },
-            { id: 2004, english: "It is raining", cree: "êkimôwahk", category: "Weather" },
-            { id: 2005, english: "It is snowing", cree: "êmispok", category: "Weather" },
-            { id: 2006, english: "It is windy", cree: "êyôtik", category: "Weather" },
-            { id: 2007, english: "It is cloudy", cree: "êyîkwaskwahk", category: "Weather" },
-            { id: 2008, english: "It is sunny", cree: "êsâkâstek", category: "Weather" },
-            { id: 2009, english: "It is clear (sky)", cree: "êwâseskwahk", category: "Weather" },
-            { id: 2010, english: "Its hailing", cree: "miskwamiy pahkisin", category: "Weather" },
-            { id: 2011, english: "Tornado", cree: "apistôsô", category: "Weather" },
-            { id: 2012, english: "Rainbow", cree: "pîsim weyâpiy", category: "Weather" },
-            { id: 2013, english: "Lightning", cree: "wâsaskotepayiw", category: "Weather" },
-            { id: 2014, english: "Thunder", cree: "ekâhkitocik", category: "Weather" },
-            { id: 2015, english: "Blizzard", cree: "pîwan yôtin", category: "Weather" },
-            { id: 2016, english: "Fog", cree: "ehîkwawâhk", category: "Weather" },
-            { id: 2017, english: "Cloud", cree: "waskôw", category: "Weather" },
-            { id: 2018, english: "Chinook", cree: "eh saskahk", category: "Weather" },
-            { id: 2019, english: "Tipi", cree: "mîkowâhp", category: "Camping" },
-            { id: 2020, english: "Tent", cree: "pakwanikamik", category: "Camping" },
-            { id: 2021, english: "Canvas", cree: "pahkwâsonekin", category: "Camping" },
-            { id: 2022, english: "Blankets", cree: "âkohpa", category: "Camping" },
-            { id: 2023, english: "Pillow", cree: "âspiskwêsimon", category: "Camping" },
-            { id: 2024, english: "Cot / small bed", cree: "nipêwinis", category: "Camping" },
-            { id: 2025, english: "Cooler", cree: "cahkascikanis", category: "Camping" },
-            { id: 2026, english: "Thermos", cree: "nîmôpakan", category: "Camping" },
-            { id: 2027, english: "Matches", cree: "kocawâkanisa", category: "Camping" },
-            { id: 2028, english: "Firewood", cree: "mihta", category: "Camping" },
-            { id: 2029, english: "Paper towels", cree: "masinahikinekin pâhkwayihikana", category: "Camping" },
-            { id: 2030, english: "Trash bags", cree: "wepinkew maskimwata", category: "Camping" },
-            { id: 2031, english: "Backpack", cree: "nayacikanisa", category: "Camping" },
-            { id: 2032, english: "Flashlight", cree: "wâsaskotepicikan", category: "Camping" },
-            { id: 2033, english: "Binoculars", cree: "kanawâpakanahikana", category: "Camping" },
-            { id: 2034, english: "Rain jacket", cree: "kimôwanasâkay", category: "Camping" },
-            { id: 2035, english: "Rain boots / gum boots", cree: "pahkopewaskisina", category: "Camping" }
+            { id: 898, english: "Make breakfast", cree: "kîksepamîcisôwin osîhta", category: "Daily Routine" }
         ];
 
         const CATEGORIES = [
@@ -955,35 +858,71 @@
             lucide.createIcons();
         }
 
+        // Play WOTW Audio (using pre-existing TTS fallback)
+        async function playWOTWAudio() {
+            await playTTS("miyo-kîsikâw");
+        }
+
         // Switch application modes
         function switchMode(mode) {
             appMode = mode;
+            const wotwTab = document.getElementById('tab-wotw');
             const localTab = document.getElementById('tab-local');
             const onlineTab = document.getElementById('tab-online');
+            const builderTab = document.getElementById('tab-builder');
+            
+            const wotwView = document.getElementById('wotw-view');
             const localFilters = document.getElementById('local-filters');
             const onlinePrompt = document.getElementById('online-prompt');
             const searchInput = document.getElementById('search-input');
             const emptyState = document.getElementById('empty-state');
+            const gridContainer = document.getElementById('word-grid');
+            const builderView = document.getElementById('builder-view');
 
             // Reset Search Text on Tab Switch
             searchTerm = "";
             searchInput.value = "";
             emptyState.classList.add('hidden');
 
-            if (mode === 'local') {
-                localTab.className = "px-6 py-3 border-b-2 border-emerald-700 font-bold text-emerald-700 text-sm md:text-base flex items-center gap-2 transition-all";
-                onlineTab.className = "px-6 py-3 border-b-2 border-transparent font-medium text-neutral-500 hover:text-neutral-700 text-sm md:text-base flex items-center gap-2 transition-all";
+            // Tab Styling Constants
+            const activeClass = "px-6 py-3 border-b-2 border-emerald-700 font-bold text-emerald-700 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap bg-white/40 rounded-t-xl";
+            const wotwActiveClass = "px-6 py-3 border-b-2 border-rose-500 font-bold text-rose-600 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap bg-white/40 rounded-t-xl";
+            const inactiveClass = "px-6 py-3 border-b-2 border-transparent font-medium text-neutral-600 hover:text-neutral-800 text-sm md:text-base flex items-center gap-2 transition-all whitespace-nowrap";
+
+            // Reset all tabs
+            wotwTab.className = inactiveClass;
+            localTab.className = inactiveClass;
+            onlineTab.className = inactiveClass;
+            builderTab.className = inactiveClass;
+
+            // Hide all views
+            wotwView.classList.add('hidden');
+            localFilters.classList.add('hidden');
+            onlinePrompt.classList.add('hidden');
+            builderView.classList.add('hidden');
+            gridContainer.classList.add('hidden');
+
+            if (mode === 'wotw') {
+                wotwTab.className = wotwActiveClass;
+                wotwView.classList.remove('hidden');
+                // Word of the week hides grid completely
+            } else if (mode === 'local') {
+                localTab.className = activeClass;
                 localFilters.classList.remove('hidden');
-                onlinePrompt.classList.add('hidden');
+                gridContainer.classList.remove('hidden');
                 renderGrid();
-            } else {
-                onlineTab.className = "px-6 py-3 border-b-2 border-emerald-700 font-bold text-emerald-700 text-sm md:text-base flex items-center gap-2 transition-all";
-                localTab.className = "px-6 py-3 border-b-2 border-transparent font-medium text-neutral-500 hover:text-neutral-700 text-sm md:text-base flex items-center gap-2 transition-all";
-                localFilters.classList.add('hidden');
+            } else if (mode === 'online') {
+                onlineTab.className = activeClass;
                 onlinePrompt.classList.remove('hidden');
+                gridContainer.classList.remove('hidden');
                 onlineResults = [];
                 updateOnlinePrompt();
                 renderGrid();
+            } else if (mode === 'builder') {
+                builderTab.className = activeClass;
+                builderView.classList.remove('hidden');
+                renderBuilderOptions();
+                updateSentence();
             }
         }
 
@@ -1236,6 +1175,118 @@
             }
         }
 
+        // --- SENTENCE BUILDER LOGIC ---
+        function renderBuilderOptions() {
+            const colPro = document.getElementById('col-pronouns');
+            const colPre = document.getElementById('col-preverbs');
+            const colVerb = document.getElementById('col-verbs');
+
+            colPro.innerHTML = PRONOUNS.map(p => `
+                <button onclick="updateBuilderSelection('pronoun', '${p.id}')" 
+                    class="builder-btn w-full text-left px-4 py-3 rounded-xl border border-neutral-200 hover:border-emerald-500 bg-white/60 shadow-sm transition-all ${builderState.pronoun.id === p.id ? 'selected' : ''}">
+                    <span class="font-bold block text-neutral-800">${p.cree}</span>
+                    <span class="text-xs text-neutral-500 block">${p.english}</span>
+                </button>
+            `).join('');
+
+            colPre.innerHTML = PREVERBS.map(p => `
+                <button onclick="updateBuilderSelection('preverb', '${p.id}')" 
+                    class="builder-btn w-full text-left px-4 py-3 rounded-xl border border-neutral-200 hover:border-emerald-500 bg-white/60 shadow-sm transition-all ${builderState.preverb.id === p.id ? 'selected' : ''}">
+                    <span class="font-bold block text-neutral-800">${p.cree || '(None)'}</span>
+                    <span class="text-xs text-neutral-500 block">${p.english || 'No preverb'}</span>
+                </button>
+            `).join('');
+
+            colVerb.innerHTML = VERBS_VAI.map(v => `
+                <button onclick="updateBuilderSelection('verb', '${v.id}')" 
+                    class="builder-btn w-full text-left px-4 py-3 rounded-xl border border-neutral-200 hover:border-emerald-500 bg-white/60 shadow-sm transition-all ${builderState.verb.id === v.id ? 'selected' : ''}">
+                    <span class="font-bold block text-neutral-800">${v.cree}</span>
+                    <span class="text-xs text-neutral-500 block">${v.english}</span>
+                </button>
+            `).join('');
+        }
+
+        function updateBuilderSelection(type, id) {
+            if (type === 'pronoun') builderState.pronoun = PRONOUNS.find(x => x.id === id);
+            if (type === 'preverb') builderState.preverb = PREVERBS.find(x => x.id === id);
+            if (type === 'verb') builderState.verb = VERBS_VAI.find(x => x.id === id);
+            
+            renderBuilderOptions();
+            updateSentence();
+        }
+
+        function updateSentence() {
+            const p = builderState.pronoun;
+            const pv = builderState.preverb;
+            const v = builderState.verb;
+
+            let creeSentence = '';
+            let englishSentence = '';
+            let prefixPart = '';
+            
+            if (p.id.startsWith('imp')) {
+                if (pv.id !== 'none') creeSentence = pv.cree + v.cree + p.suffix;
+                else creeSentence = v.cree + p.suffix;
+            } else {
+                if (pv.id !== 'none') {
+                    creeSentence = p.prefix + pv.cree + v.cree + p.suffix;
+                } else {
+                    prefixPart = v.startsWithVowel ? p.vowelPrefix : p.prefix;
+                    creeSentence = prefixPart + v.cree + p.suffix;
+                }
+            }
+
+            let displayCree = '';
+            if (p.id === 'niya' || p.id === 'kiya' || p.id === 'wiya') {
+                 displayCree = `<span class="opacity-40 font-medium">${p.cree}</span> ` + creeSentence;
+            } else {
+                 displayCree = creeSentence;
+            }
+
+            let engSubj = p.english;
+            let engPre = pv.english;
+            let engVerb = v.english;
+
+            if (p.id === 'wiya') {
+                if (pv.id === 'none') {
+                    if (engVerb === 'sit') engVerb = 'sits';
+                    if (engVerb === 'eat') engVerb = 'eats';
+                    if (engVerb === 'sleep') engVerb = 'sleeps';
+                    if (engVerb === 'walk') engVerb = 'walks';
+                    if (engVerb === 'wake up') engVerb = 'wakes up';
+                    if (engVerb === 'dance') engVerb = 'dances';
+                    if (engVerb === 'speak Cree') engVerb = 'speaks Cree';
+                } else {
+                    if (engPre === 'want to') engPre = 'wants to';
+                    if (engPre === 'going to') engPre = 'is going to';
+                    if (engPre === 'good at') engPre = 'is good at';
+                    if (engPre === 'come and') engPre = 'comes and';
+                }
+            } else if (p.id === 'niya' || p.id === 'kiya') {
+                 if (engPre === 'going to') engPre = p.id === 'niya' ? 'am going to' : 'are going to';
+                 if (engPre === 'good at') engPre = p.id === 'niya' ? 'am good at' : 'are good at';
+            }
+
+            if (p.id === 'imp2s') {
+                 englishSentence = `(You) ${pv.id !== 'none' ? engPre + ' ' : ''}${v.english}!`;
+            } else if (p.id === 'imp2p') {
+                 englishSentence = `(You all) ${pv.id !== 'none' ? engPre + ' ' : ''}${v.english}!`;
+            } else if (p.id === 'imp2i') {
+                 englishSentence = `Let's ${pv.id !== 'none' ? engPre + ' ' : ''}${v.english}!`;
+            } else {
+                 englishSentence = `${engSubj} ${engPre ? engPre + ' ' : ''}${engVerb}`;
+            }
+
+            document.getElementById('builder-cree-output').innerHTML = displayCree;
+            document.getElementById('builder-english-output').innerHTML = englishSentence;
+            document.getElementById('builder-cree-raw').value = creeSentence;
+        }
+
+        async function playBuilderAudio() {
+            const rawText = document.getElementById('builder-cree-raw').value;
+            await playTTS(rawText);
+        }
+
         function pcmToWav(pcmData, sampleRate = 24000) {
             const buffer = new ArrayBuffer(44 + pcmData.length);
             const view = new DataView(buffer);
@@ -1261,10 +1312,10 @@
 
         async function playTTS(text) {
             const payload = {
-                contents: [{ parts: [{ text: `Say clearly in Cree: ${text}` }] }],
+                contents: [{ parts: [{ text: `Say in a mature, older voice clearly in Cree: ${text}` }] }],
                 generationConfig: {
                     responseModalities: ["AUDIO"],
-                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } } }
+                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Gacrux" } } }
                 },
                 model: "gemini-2.5-flash-preview-tts"
             };
@@ -1337,7 +1388,7 @@
         // --- PRONUNCIATION LAB RECORDING CORE ---
         
         function openPracticeModal(event, id) {
-            event.stopPropagation(); // Stop card from flipping
+            event.stopPropagation(); 
             
             currentPracticeWord = (appMode === 'local') 
                 ? CREE_DATA.find(w => w.id === id) 
@@ -1347,12 +1398,10 @@
 
             resetPracticeState();
 
-            // SRO Clean vs bracket representation update
             document.getElementById('modal-cree-word').textContent = currentPracticeWord.cree;
             document.getElementById('modal-english-word').textContent = currentPracticeWord.english;
             document.getElementById('modal-category').textContent = currentPracticeWord.category;
 
-            // Handle reference audio availability in Modal
             const referenceSection = document.getElementById('modal-reference-audio-section');
             const noAudioWarning = document.getElementById('modal-no-audio-warning');
             
@@ -1448,14 +1497,12 @@
                     const mimeType = mediaRecorder.mimeType || 'audio/webm';
                     const audioBlob = new Blob(audioChunks, { type: mimeType });
                     
-                    // Instant playback repeat block
                     const audioUrl = URL.createObjectURL(audioBlob);
                     const playbackAudio = new Audio(audioUrl);
                     playbackAudio.play();
                     
                     document.getElementById('record-instructions').textContent = "Repeating your voice...";
                     
-                    // Trigger Gemini Speech Analysis
                     await analyzeSpeechPronunciation(audioBlob);
                 };
                 
@@ -1473,7 +1520,7 @@
                     const secs = String(recordSeconds % 60).padStart(2, '0');
                     document.getElementById('record-timer').textContent = `${mins}:${secs}`;
                     
-                    if (recordSeconds >= 12) { // Cap recording at 12 seconds to prevent token overflows
+                    if (recordSeconds >= 12) { 
                         stopRecording();
                     }
                 }, 1000);
@@ -1496,7 +1543,6 @@
             }
         }
 
-        // Helper to convert blob back into standard base64 for API transport
         function blobToBase64(blob) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -1506,7 +1552,6 @@
             });
         }
 
-        // Fetch loop utilizing exponential backoff rule
         async function fetchGeminiAnalysisWithBackoff(payload) {
             let retries = 0;
             const maxRetries = 5;
@@ -1525,7 +1570,6 @@
                         }
                     }
                 } catch (e) {
-                    // Fail silently inside console as per rules
                 }
                 retries++;
                 await new Promise(r => setTimeout(r, Math.pow(2, retries) * 1000));
@@ -1576,7 +1620,6 @@
                 
                 loading.classList.add('hidden');
                 
-                // Render grade accuracy badge beautifully
                 const score = data.score || 0;
                 const feedbackText = data.feedback || "Great attempt! Keep practicing.";
                 
@@ -1587,7 +1630,6 @@
                 scoreLabel.textContent = `${score}%`;
                 feedbackLabel.textContent = feedbackText;
 
-                // Color coordinate badge based on standard linguistic score brackets
                 if (score >= 85) {
                     scoreBadge.className = "relative flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 border-4 border-emerald-500 text-emerald-800 font-bold text-2xl shrink-0";
                 } else if (score >= 60) {
@@ -1618,7 +1660,7 @@
                     class="px-5 py-2.5 rounded-xl whitespace-nowrap text-sm font-bold transition-all ${
                         activeCategory === cat 
                         ? 'bg-emerald-700 text-white shadow-md transform scale-105' 
-                        : 'bg-white text-neutral-600 border border-neutral-200 hover:bg-emerald-50'
+                        : 'bg-white/70 backdrop-blur-sm text-neutral-600 border border-neutral-200 hover:bg-white'
                     }"
                 >
                     ${cat}
@@ -1669,7 +1711,8 @@
                         onclick="handleCardClick(this, ${word.id})"
                     >
                         <div class="card-inner relative w-full h-full preserve-3d">
-                            <div class="absolute inset-0 bg-white rounded-2xl shadow-sm flex flex-col items-center justify-center border border-neutral-200 backface-hidden p-4 hover:border-emerald-200 transition-colors">
+                            <!-- Front side (English) -->
+                            <div class="absolute inset-0 bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm flex flex-col items-center justify-center border border-neutral-200 backface-hidden p-4 hover:border-emerald-200 transition-colors">
                                 <span class="text-[10px] uppercase tracking-widest text-emerald-600 font-bold mb-2 bg-emerald-50 px-2 py-1 rounded">
                                     ${word.category}
                                 </span>
@@ -1677,23 +1720,18 @@
                                 ${word.asset ? `<img src="${word.asset}" class="asset-img" alt="${word.english}">` : ''}
                             </div>
 
+                            <!-- Back side (Cree) -->
                             <div class="absolute inset-0 bg-emerald-800 rounded-2xl shadow-md flex flex-col items-center justify-center border border-emerald-900 rotate-y-180 backface-hidden text-white p-4">
                                 <span class="text-[10px] uppercase tracking-widest opacity-70 font-bold mb-2">nêhiyawêwin</span>
                                 <h2 class="text-2xl font-bold mb-4 text-center leading-tight break-all">${word.cree}</h2>
                                 
                                 <div class="flex items-center gap-2">
-                                    ${word.hash ? `
-                                        <div class="bg-white/20 p-2 rounded-full" title="Repository Audio">
-                                            <div class="audio-spinner hidden animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                                            <div class="audio-icon">
-                                                <i data-lucide="volume-2" size="20"></i>
-                                            </div>
+                                    <div class="bg-white/20 p-2 rounded-full">
+                                        <div class="audio-spinner hidden animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                                        <div class="audio-icon">
+                                            <i data-lucide="volume-2" size="20"></i>
                                         </div>
-                                    ` : `
-                                        <div class="p-2 opacity-50 flex items-center justify-center" title="No audio available">
-                                            <i data-lucide="volume-x" size="20"></i>
-                                        </div>
-                                    `}
+                                    </div>
                                     
                                     <button onclick="openPracticeModal(event, ${word.id})" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors" title="Speech Analysis Lab">
                                         <i data-lucide="mic" size="14"></i> Speak
@@ -1710,7 +1748,11 @@
                                         >
                                             <i data-lucide="external-link" size="14"></i>
                                         </a>
-                                    ` : ''}
+                                    ` : `
+                                        <div class="p-2 bg-white/10 rounded-full" title="AI Audio Generated">
+                                            <i data-lucide="sparkles" size="14"></i>
+                                        </div>
+                                    `}
                                 </div>
                             </div>
                         </div>
@@ -1732,9 +1774,7 @@
                 const word = (appMode === 'local') 
                     ? CREE_DATA.find(w => w.id === id) 
                     : onlineResults.find(w => w.id === id);
-                if (word && word.hash && word.file) {
-                    playAudio(word);
-                }
+                if (word) playAudio(word);
             }
             element.classList.toggle('flipped');
         };
@@ -1754,9 +1794,9 @@
             }
         });
 
+        // Initial Boot sets Word of the Week as default
         window.onload = () => {
-            renderCategories();
-            renderGrid();
+            switchMode('wotw');
         };
     </script>
 </body>
